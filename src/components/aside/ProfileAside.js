@@ -78,9 +78,9 @@ export default function ProfileAside({ profile, compact = false }) {
             onClick={() => setPhotoOpen(true)}
             aria-label={`Agrandir la photo de ${profile.name}`}
             title="Agrandir la photo"
-            className="group relative flex-shrink-0 rounded-lg ring-4 ring-primary/20 hover:ring-primary/40 transition-shadow focus:outline-none focus-visible:ring-4 focus-visible:ring-primary"
+            className="group relative flex-shrink-0 rounded-full ring-4 ring-primary/20 hover:ring-primary/40 transition-shadow focus:outline-none focus-visible:ring-4 focus-visible:ring-primary"
           >
-            <img src={photoUrl} alt={profile.name} className="h-20 w-20 rounded-lg object-cover" />
+            <img src={photoUrl} alt={profile.name} className="h-20 w-20 rounded-full object-cover" />
             <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity">
               <FiMaximize className="w-5 h-5" />
             </span>
