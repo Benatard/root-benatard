@@ -35,8 +35,13 @@ export default function Navbar({ profile }) {
       <div className="page-container">
         <div className="flex items-center justify-between h-[65px]">
           <Link to="/" className="flex items-center gap-3 flex-shrink-0">
+            <img
+              src="/images/logo-mark.svg"
+              alt={`${profile?.name || 'Accueil'} — logo`}
+              className="h-8 w-8"
+            />
             <span className="text-xl font-extrabold tracking-tight text-black dark:text-white">
-              {profile?.name}<span className="text-primary"></span>
+              {profile?.name}
             </span>
           </Link>
 

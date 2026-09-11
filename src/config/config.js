@@ -11,6 +11,14 @@ const config = {
 
 export const FORGE_CONFIGURED = Boolean(config.FORGE.PROJECT_KEY && config.FORGE.API_KEY);
 
+export const SITE_URL = (process.env.REACT_APP_SITE_URL || 'https://root-benatard.vercel.app').replace(/\/+$/, '');
+
+export const absoluteUrl = (path) => {
+  if (!path) return SITE_URL;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`;
+};
+
 const UPLOAD_PREFIXES = ['/storage/', '/uploads/', '/media/', '/files/'];
 
 export const resolveUploadUrl = (path) => {

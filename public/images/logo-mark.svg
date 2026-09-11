@@ -5,6 +5,13 @@
       <stop offset="1" stop-color="#2563EB"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" fill="url(#g)"/>
-  <path d="M18 10h28v9H27v8h17v9H27v18h-9V10z" fill="#FFFFFF"/>
+  <rect width="64" height="64" rx="16" fill="url(#g)"/>
+  <g stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M20 9 V49"/>
+    <path d="M20 12 C31 12 39 15 39 25 C39 34 32 39 25 39"/>
+    <path d="M34 38 L20 50"/>
+    <path d="M39 9 V54"/>
+    <path d="M39 14 C46 14 51 17 51 24 C51 31 46 35 40 35"/>
+    <path d="M39 37 C46 37 51 40 51 47 C51 54 46 57 40 57"/>
+  </g>
 </svg>
