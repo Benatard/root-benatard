@@ -83,31 +83,31 @@ export default function AdminListEditor({
   onRemoveItem,
   hideAdd = false,
 }) {
-  const [openId, setOpenId] = useState(null);
+  const [openIndex, setOpenIndex] = useState(null);
 
-  const update = (id, patch) => onChange(items.map((it) => (it.id === id ? { ...it, ...patch } : it)));
-  const remove = (id) => onChange(items.filter((it) => it.id !== id));
+  const update = (idx, patch) => onChange(items.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
+  const remove = (idx) => onChange(items.filter((_, i) => i !== idx));
   const add = () => onChange([{ ...newItem, id: `local-${Date.now()}` }, ...items]);
 
-  const handleRemove = async (item) => {
+  const handleRemove = async (item, idx) => {
     if (typeof onRemoveItem === 'function') {
       const ok = await onRemoveItem(item);
-      if (ok) remove(item.id);
+      if (ok) remove(idx);
       return;
     }
-    remove(item.id);
+    remove(idx);
   };
 
   return (
     <div className="space-y-4">
-      {items.map((item) => {
-        const isOpen = openId === item.id;
+      {items.map((item, idx) => {
+        const isOpen = openIndex === idx;
         return (
-          <div key={item.id} className="card-root overflow-hidden">
+          <div key={item.id ?? `idx-${idx}`} className="card-root overflow-hidden">
             <div className="flex items-center gap-3 px-5 py-4 border-b border-stroke/70 dark:border-[#2C303B]">
               <button
                 type="button"
-                onClick={() => setOpenId(isOpen ? null : item.id)}
+                onClick={() => setOpenIndex(isOpen ? null : idx)}
                 className="flex items-center gap-3 flex-1 min-w-0 text-left"
               >
                 {isOpen ? (
@@ -130,7 +130,7 @@ export default function AdminListEditor({
               )}
               <button
                 type="button"
-                onClick={() => handleRemove(item)}
+                onClick={() => handleRemove(item, idx)}
                 aria-label="Supprimer"
                 className="h-9 w-9 flex-shrink-0 bg-red-50 dark:bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
               >
@@ -142,7 +142,7 @@ export default function AdminListEditor({
                 {fields.map((field) => (
                   <div key={field.key} className={field.full ? 'sm:col-span-2' : ''}>
                     <label className="label-root mb-2">{field.label}</label>
-                    <FieldInput field={field} value={item[field.key]} onChange={(v) => update(item.id, { [field.key]: v })} />
+                    <FieldInput field={field} value={item[field.key]} onChange={(v) => update(idx, { [field.key]: v })} />
                   </div>
                 ))}
               </div>
