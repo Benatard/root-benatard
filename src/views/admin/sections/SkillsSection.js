@@ -15,7 +15,12 @@ export default function SkillsSection() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (skills) setCategories((skills.categories || []).map(toDbCategory));
+    if (skills) {
+      setCategories((skills.categories || []).map((c, i) => ({
+        ...toDbCategory(c),
+        id: c.id ?? `local-${i}-${Date.now()}`,
+      })));
+    }
   }, [skills]);
 
   const updateCategory = (id, patch) =>
@@ -42,7 +47,8 @@ export default function SkillsSection() {
     );
 
   const save = async () => {
-    const payload = { categories };
+    const stripId = ({ id, ...rest }) => rest;
+    const payload = { categories: categories.map(stripId) };
     setSaving(true);
     try {
       await skillsAPI.update(payload);
