@@ -38,6 +38,20 @@ Choisir l'ID **uuid** pour toutes les tables. Créer les colonnes suivantes
 |------------|------|
 | categories | json |
 
+### `lms` — 1 seule ligne (mini-LMS : formation par modules)
+| colonne | type |
+|---------|------|
+| modules | json |
+
+> `modules` est un tableau de modules de formation. Chaque module :
+> `{ "id", "title", "description", "lessons": [ ... ] }`.
+> Chaque leçon d'un module :
+> `{ "id", "title", "url", "embedUrl", "content" }` —
+> `url` = lien de la vidéo (YouTube, Google Drive, Vimeo ou Dailymotion),
+> `embedUrl` = URL d'iframe générée par le site, `content` = récapitulatif
+> écrit de la leçon. La progression des apprenants est stockée côté visiteur
+> dans le localStorage (clé `lms_progress`), pas en base.
+
 ### `experience` — 1 seule ligne
 | colonne     | type |
 |-------------|------|

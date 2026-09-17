@@ -137,6 +137,18 @@ export const skillsAPI = {
   },
 };
 
+const lmsTable = singleRow('lms', 'portfolio_lms_id');
+
+const toLMSRow = (row) => row && { ...row, modules: parseJSONField(row.modules) };
+
+export const lmsAPI = {
+  get: async () => toLMSRow(await lmsTable.get()),
+  save: async (payload) => {
+    const row = await lmsTable.save(cleanId(payload));
+    return toLMSRow(row);
+  },
+};
+
 const experienceTable = singleRow('experience', 'portfolio_experience_id');
 
 const toExperienceRow = (row) =>

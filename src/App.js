@@ -24,7 +24,7 @@ export default function App() {
       <Route path="/competences" element={<MainLayout><SkillsPage /></MainLayout>} />
       <Route path="/projets" element={<MainLayout><ProjectsPage /></MainLayout>} />
       <Route path="/ressources" element={<MainLayout><ResourcesPage /></MainLayout>} />
-      <Route path="/videos" element={<MainLayout><VideosPage /></MainLayout>} />
+      <Route path="/videos" element={<MainLayout fullWidth><VideosPage /></MainLayout>} />
       <Route path="/galerie" element={<MainLayout><GalleryPage /></MainLayout>} />
       <Route path="/contact" element={<MainLayout><ContactPage /></MainLayout>} />
       <Route path="/confidentialite" element={<MainLayout><PrivacyPage /></MainLayout>} />

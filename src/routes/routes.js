@@ -4,7 +4,7 @@ export const publicRoutes = [
   { path: '/competences', label: 'Compétences' },
   { path: '/projets', label: 'Projets' },
   { path: '/ressources', label: 'Ressources' },
-  { path: '/videos', label: 'Vidéos' },
+  { path: '/videos', label: 'Formation' },
   { path: '/galerie', label: 'Galerie' },
   { path: '/contact', label: 'Contact' },
 ];

@@ -5,7 +5,7 @@ import ProfileAside from '../components/aside/ProfileAside';
 import BackToTop from '../components/ui/BackToTop';
 import { useProfile } from '../context/ProfileContext';
 
-export default function MainLayout({ children, hideFooter }) {
+export default function MainLayout({ children, hideFooter, fullWidth = false }) {
   const { profile } = useProfile();
 
   return (
@@ -19,6 +19,9 @@ export default function MainLayout({ children, hideFooter }) {
       <Navbar profile={profile} />
       <main id="main" tabIndex={-1} className="flex-1">
         <div className="page-container">
+          {fullWidth ? (
+            <div className="min-w-0 pb-10">{children}</div>
+          ) : (
           <div className="lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-5 lg:items-stretch">
             <div className="hidden lg:block">
               <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto  pr-0.5">
@@ -33,6 +36,7 @@ export default function MainLayout({ children, hideFooter }) {
               {children}
             </div>
           </div>
+          )}
         </div>
       </main>
       {!hideFooter && <Footer profile={profile} />}

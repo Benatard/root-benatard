@@ -53,6 +53,13 @@ CREATE TABLE IF NOT EXISTS experience (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS lms (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  modules jsonb,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS projects (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text,
@@ -155,6 +162,13 @@ INSERT INTO profile (id, name, role, level, title, tagline, bio, availability, p
 INSERT INTO skills (id, categories) VALUES (
   '22222222-2222-4222-8222-222222222222',
   '[{"name":"Frontend","icon":"code","color":"#4A6CF7","skills":[{"name":"React","level":85},{"name":"JavaScript / ES6+","level":85},{"name":"HTML / CSS","level":90},{"name":"Tailwind CSS","level":85}]},{"name":"Backend","icon":"server","color":"#10B981","skills":[{"name":"Node.js / Express","level":80},{"name":"REST APIs","level":80},{"name":"Bases de données (SQL)","level":75},{"name":"Python","level":60}]},{"name":"Design UI/UX","icon":"monitor","color":"#F59E0B","skills":[{"name":"Maquettage d''interfaces","level":80},{"name":"Expérience utilisateur","level":75},{"name":"Design responsive","level":85},{"name":"Outils de design","level":70}]},{"name":"Réseaux & Infrastructure","icon":"globe","color":"#06B6D4","skills":[{"name":"Câblage structuré","level":85},{"name":"Architecture réseau","level":75},{"name":"Maintenance & supervision","level":80},{"name":"TCP/IP & LAN","level":70}]},{"name":"Formation & Pédagogie","icon":"layers","color":"#8B5CF6","skills":[{"name":"Formation d''agents & personnel","level":85},{"name":"Tutoriels & accompagnement","level":80},{"name":"Accompagnement d''étudiants","level":80}]}]'
+);
+
+-- ---------- lms (1 ligne) — formation par modules ----------
+-- Leçon 1 réelle (le lien vidéo « YOUTUBE_ID » est à remplacer).
+INSERT INTO lms (id, modules) VALUES (
+  '99999999-9999-4999-8999-999999999999',
+  '[{"id":"module-methode","title":"Ma méthode de programmation","description":"Une méthode simple et éprouvée : analyser le besoin, découper le projet en modules indépendants, puis avancer module par module avec une vérification à chaque étape. Chaque leçon combine une vidéo de démonstration et un résumé écrit.","lessons":[{"id":"lecon-1","title":"Leçon 1 — Bien définir le besoin avant de coder","url":"https://www.youtube.com/watch?v=YOUTUBE_ID","embedUrl":"https://www.youtube.com/embed/YOUTUBE_ID","content":"Bienvenue dans cette première leçon ! Elle pose la base de toute la méthode que je te partage. Elle vient directement de ma pratique quotidienne : avant d''écrire la moindre ligne de code, je prends toujours le temps de comprendre précisément ce que l''on veut construire.\n\nLa boucle de travail, étape par étape :\n\n1. Décrire le besoin en une phrase simple.\n2. Analyser ce qui existe déjà avant de modifier quoi que ce soit.\n3. Clarifier par des questions ciblées plutôt que de supposer.\n4. Découper le projet en petits modules livrables un par un.\n5. Implémenter chaque module, puis vérifier immédiatement (compiler, builder).\n6. Documenter ce qui a été fait (SQL, schéma, notes) pour ne rien perdre.\n\nC''est exactement cette boucle — besoin, analyse, clarification, plan, module, vérification, itération — que j''applique en développement, seul ou en équipe, avec ou sans l''aide d''un assistant IA. Elle t''évite d''écrire des lignes inutiles et te fait gagner un temps précieux."}]}]'
 );
 
 -- ---------- experience (1 ligne) ----------

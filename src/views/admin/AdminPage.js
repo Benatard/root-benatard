@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FiGrid, FiUser, FiCode, FiFolder, FiBriefcase, FiPlayCircle, FiLink, FiImage, FiMail,
+  FiGrid, FiUser, FiCode, FiFolder, FiBriefcase, FiPlayCircle, FiBookOpen, FiLink, FiImage, FiMail,
   FiLogOut, FiExternalLink, FiShield,
 } from 'react-icons/fi';
 import useAuth from '../../hooks/useAuth';
@@ -12,6 +12,7 @@ import SkillsSection from './sections/SkillsSection';
 import ProjectsSection from './sections/ProjectsSection';
 import ExperienceSection from './sections/ExperienceSection';
 import VideosSection from './sections/VideosSection';
+import LMSSection from './sections/LMSSection';
 import GallerySection from './sections/GallerySection';
 import ResourcesSection from './sections/ResourcesSection';
 import MessagesSection from './sections/MessagesSection';
@@ -23,6 +24,7 @@ const TABS = [
   { key: 'projects', label: 'Projets', icon: FiFolder },
   { key: 'experience', label: 'Expérience', icon: FiBriefcase },
   { key: 'videos', label: 'Vidéos', icon: FiPlayCircle },
+  { key: 'lms', label: 'Formation', icon: FiBookOpen },
   { key: 'gallery', label: 'Galerie', icon: FiImage },
   { key: 'resources', label: 'Ressources', icon: FiLink },
   { key: 'messages', label: 'Messages', icon: FiMail },
@@ -46,6 +48,8 @@ export default function AdminPage() {
         return <ExperienceSection />;
       case 'videos':
         return <VideosSection />;
+      case 'lms':
+        return <LMSSection />;
       case 'gallery':
         return <GallerySection />;
       case 'resources':
