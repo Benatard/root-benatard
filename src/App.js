@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ProfileProvider } from './context/ProfileContext';
 import MainLayout from './layouts/MainLayout';
+import { useLang } from './i18n/LanguageContext';
 import HomePage from './views/HomePage';
 import AboutPage from './views/about/AboutPage';
 import SkillsPage from './views/skills/SkillsPage';
@@ -17,7 +18,15 @@ import AdminPage from './views/admin/AdminPage';
 export default function App() {
   return (
     <ProfileProvider>
-      <Routes>
+      <AppRoutes />
+    </ProfileProvider>
+  );
+}
+
+function AppRoutes() {
+  const { t } = useLang();
+  return (
+    <Routes>
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
       <Route path="/a-propos" element={<MainLayout><AboutPage /></MainLayout>} />
@@ -33,11 +42,10 @@ export default function App() {
         <MainLayout>
           <div className="py-20 text-center">
             <h1 className="text-4xl font-extrabold text-black dark:text-white mb-4">404</h1>
-            <p className="text-body dark:text-body-dark">Page non trouvée</p>
+            <p className="text-body dark:text-body-dark">{t('app.notFound')}</p>
           </div>
         </MainLayout>
       } />
-      </Routes>
-    </ProfileProvider>
+    </Routes>
   );
 }

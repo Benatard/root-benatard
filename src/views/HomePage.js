@@ -16,6 +16,7 @@ import useVideos from '../hooks/useVideos';
 import useGallery from '../hooks/useGallery';
 import { skillsAPI, projectsAPI } from '../service/api';
 import { normalizeSkills } from '../config/icons';
+import { useLang } from '../i18n/LanguageContext';
 
 export default function HomePage() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
@@ -23,6 +24,7 @@ export default function HomePage() {
   const { data: projects, loading: projectsLoading, error: projectsError } = useResource(projectsAPI.get);
   const { videos, loading: videosLoading, error: videosError } = useVideos();
   const { photos: galleryPhotos, loading: galleryLoading, error: galleryError } = useGallery();
+  const { t } = useLang();
 
   const categories = normalizeSkills(skills)?.categories || [];
   const latestProjects = Array.isArray(projects) ? projects.slice(0, 3) : [];
@@ -32,7 +34,7 @@ export default function HomePage() {
   if (profileLoading) {
     return (
       <>
-        <PageMeta title="Accueil" />
+        <PageMeta title={t('home.metaTitle')} />
         <div className="py-8"><Loading variant="hero" /></div>
       </>
     );
@@ -41,9 +43,9 @@ export default function HomePage() {
   if (profileError || !profile) {
     return (
       <>
-        <PageMeta title="Accueil" />
+        <PageMeta title={t('home.metaTitle')} />
         <div className="max-w-5xl mx-auto px-5 py-16 text-center">
-          <ErrorBanner message="Impossible de charger le profil. L'API est peut-être inaccessible." />
+          <ErrorBanner message={t('common.profileLoadError')} />
         </div>
       </>
     );
@@ -51,7 +53,7 @@ export default function HomePage() {
 
   return (
     <div>
-      <PageMeta title="Accueil" description={profile ? `${profile.title} — ${profile.tagline}` : undefined} />
+      <PageMeta title={t('home.metaTitle')} description={profile ? `${profile.title} — ${profile.tagline}` : undefined} />
 
       <section className="relative pl-5 overflow-hidden bg-white dark:bg-gray-dark">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(74,108,247,0.12)_1px,transparent_0)] bg-[size:26px_26px] [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_72%)] pointer-events-none" />
@@ -76,13 +78,13 @@ export default function HomePage() {
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link to="/projets" className="btn-primary-root">
-                Voir mes projets <FiFolder className="w-4 h-4" />
+                {t('home.seeProjects')} <FiFolder className="w-4 h-4" />
               </Link>
               <Link to="/videos" className="btn-outline-root">
-                Mes tutos vidéo <FiPlayCircle className="w-4 h-4" />
+                {t('home.myTutorials')} <FiPlayCircle className="w-4 h-4" />
               </Link>
               <Link to="/contact" className="btn-black-root">
-                Me contacter <FiPhone className="w-4 h-4" />
+                {t('home.contactMe')} <FiPhone className="w-4 h-4" />
               </Link>
             </div>
           </Reveal>
@@ -103,14 +105,14 @@ export default function HomePage() {
       <section className="bg-transparent">
         <div className="py-16 md:py-19">
           <SectionTitle
-            eyebrow="Mon expertise"
-            title="Compétences phares"
-            sub="Les technologies que j'utilise au quotidien pour livrer des applications robustes et élégantes."
+            eyebrow={t('home.expertise')}
+            title={t('home.topSkills')}
+            sub={t('home.topSkillsSub')}
           />
           {skillsLoading ? (
             <Loading variant="cardGrid2" />
           ) : skillsError ? (
-            <ErrorBanner message="Impossible de charger les compétences." />
+            <ErrorBanner />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {categories.slice(0, 2).map(({ icon: Icon, name, color, skills: categorySkills }, index) => (
@@ -134,7 +136,7 @@ export default function HomePage() {
           )}
           <div className="mt-10 text-center">
             <Link to="/competences" className="btn-outline-root">
-              Voir toutes mes compétences <FiArrowRight className="w-4 h-4" />
+              {t('home.seeAllSkills')} <FiArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -143,14 +145,14 @@ export default function HomePage() {
       <section className="bg-white dark:bg-gray-dark">
         <div className="py-16 md:py-19">
           <SectionTitle
-            eyebrow="Mes réalisations"
-            title="Projets récents"
-            sub="Un aperçu des applications web que j'ai conçues et développées."
+            eyebrow={t('home.realisations')}
+            title={t('home.recentProjects')}
+            sub={t('home.recentProjectsSub')}
           />
           {projectsLoading ? (
             <Loading variant="cards" count={3} />
           ) : projectsError ? (
-            <ErrorBanner message="Impossible de charger les projets." />
+            <ErrorBanner />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {latestProjects.map((project, index) => (
@@ -162,7 +164,7 @@ export default function HomePage() {
           )}
           <div className="mt-10 text-center">
             <Link to="/projets" className="btn-primary-root">
-              Tous mes projets <FiArrowRight className="w-4 h-4" />
+              {t('home.allProjects')} <FiArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -171,14 +173,14 @@ export default function HomePage() {
       <section className="bg-transparent">
         <div className="py-16 md:py-19">
           <SectionTitle
-            eyebrow="Apprendre avec moi"
-            title="Derniers tutos vidéo"
-            sub="Des tutoriels concrets pour monter en compétences en développement web."
+            eyebrow={t('home.learnWithMe')}
+            title={t('home.latestVideos')}
+            sub={t('home.latestVideosSub')}
           />
           {videosLoading ? (
             <Loading variant="cardGrid2" />
           ) : videosError ? (
-            <ErrorBanner message="Impossible de charger les vidéos." />
+            <ErrorBanner />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {latestVideos.map((video, index) => (
@@ -190,7 +192,7 @@ export default function HomePage() {
           )}
           <div className="mt-10 text-center">
             <Link to="/videos" className="btn-outline-root">
-              Toutes les vidéos <FiArrowRight className="w-4 h-4" />
+              {t('home.allVideos')} <FiArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -199,16 +201,16 @@ export default function HomePage() {
       <section className="bg-white dark:bg-gray-dark">
         <div className="py-16 md:py-19">
           <SectionTitle
-            eyebrow="En images"
-            title="Galerie photo"
-            sub="Un aperçu de mes réalisations : chantiers, installations et applications."
+            eyebrow={t('home.inImages')}
+            title={t('home.gallery')}
+            sub={t('home.gallerySub')}
           />
           {galleryLoading ? (
             <div className="max-w-3xl mx-auto card-root overflow-hidden">
               <div className="aspect-video md:aspect-[16/10] bg-gray2 dark:bg-[#2C303B] animate-pulse" />
             </div>
           ) : galleryError ? (
-            <ErrorBanner message="Impossible de charger la galerie." />
+            <ErrorBanner />
           ) : slides.length > 0 ? (
             <Reveal className="max-w-3xl mx-auto">
               <Slideshow
@@ -221,12 +223,12 @@ export default function HomePage() {
           ) : (
             <div className="max-w-3xl mx-auto card-root p-12 text-center">
               <FiCamera className="mx-auto w-10 h-10 text-primary/40" />
-              <p className="mt-4 text-body dark:text-body-dark">Aucune photo pour le moment.</p>
+              <p className="mt-4 text-body dark:text-body-dark">{t('home.noPhoto')}</p>
             </div>
           )}
           <div className="mt-10 text-center">
             <Link to="/galerie" className="btn-outline-root">
-              Voir toute la galerie <FiArrowRight className="w-4 h-4" />
+              {t('home.seeGallery')} <FiArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -240,18 +242,17 @@ export default function HomePage() {
               <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-black/10 blur-2xl pointer-events-none" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.12)_1px,transparent_0)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)] pointer-events-none" />
               <h2 className="relative text-3xl md:text-4xl font-bold tracking-tight text-white leading-tight">
-                Un projet en tête ?
+                {t('home.projectIdea')}
               </h2>
               <p className="relative mt-4 text-white/80 max-w-xl mx-auto">
-                Discutons de votre idée : application web, site vitrine, refonte ou accompagnement technique.
-                Je réponds sous 24h.
+                {t('home.projectIdeaDesc')}
               </p>
               <div className="relative mt-8 flex flex-wrap justify-center gap-4">
                 <Link to="/contact" className="btn-white-root">
-                  Me contacter <FiArrowRight className="w-4 h-4" />
+                  {t('home.contactMe')} <FiArrowRight className="w-4 h-4" />
                 </Link>
                 <Link to="/projets" className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 text-sm font-semibold bg-black/25 border border-white/25 text-white hover:bg-black/40 transition-colors duration-300">
-                  <FiCode className="w-4 h-4" /> Voir mon code
+                  <FiCode className="w-4 h-4" /> {t('home.seeMyCode')}
                 </Link>
               </div>
             </div>

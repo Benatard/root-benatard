@@ -7,15 +7,17 @@ import Slideshow from '../../components/ui/Slideshow';
 import Loading from '../../components/ui/Loading';
 import ErrorBanner from '../../components/ui/ErrorBanner';
 import useGallery from '../../hooks/useGallery';
+import { useLang } from '../../i18n/LanguageContext';
 
 export default function GalleryPage() {
   const { photos, loading, error } = useGallery();
+  const { t } = useLang();
 
   return (
     <div>
       <PageMeta
-        title="Galerie photos"
-        description="Galerie photos : mes projets, chantiers réseau, sites et applications développés."
+        title={t('gallery.metaTitle')}
+        description={t('gallery.metaDesc')}
       />
 
       <section className="relative pl-5 overflow-hidden bg-white dark:bg-gray-dark">
@@ -24,15 +26,14 @@ export default function GalleryPage() {
         <div className="relative py-16 md:py-19 border-b border-stroke/70 dark:border-[#2C303B]">
           <Reveal className="max-w-3xl">
             <span className="eyebrow-root">
-              <FiCamera className="w-4 h-4" /> Mes réalisations en images
+              <FiCamera className="w-4 h-4" /> {t('gallery.eyebrow')}
             </span>
             <h1 className="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-black dark:text-white">
-              La{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">galerie photo</span>
+              {t('gallery.title1')}{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">{t('gallery.titleHighlight')}</span>
             </h1>
             <p className="mt-6 text-base md:text-lg text-body dark:text-body-dark leading-relaxed">
-              Chantiers réseau, installations, applications et événements : un aperçu en diaporama de mes
-              réalisations sur le terrain comme à l'écran.
+              {t('gallery.intro')}
             </p>
           </Reveal>
         </div>
@@ -41,9 +42,9 @@ export default function GalleryPage() {
       <section className="bg-transparent">
         <div className="py-16 md:py-19">
           <SectionTitle
-            eyebrow="Diaporama"
-            title="Découvrez mon univers en images"
-            sub="Utilisez les flèches, les vignettes ou le clavier (←/→). Cliquez sur une photo pour l'agrandir."
+            eyebrow={t('gallery.slideshow')}
+            title={t('gallery.title2')}
+            sub={t('gallery.sub2')}
           />
 
           {loading ? (
@@ -51,7 +52,7 @@ export default function GalleryPage() {
               <div className="aspect-video bg-gray2 dark:bg-[#2C303B] animate-pulse" />
             </div>
           ) : error ? (
-            <ErrorBanner message="Impossible de charger la galerie." />
+            <ErrorBanner message={t('gallery.loadError')} />
           ) : photos.length > 0 ? (
             <Reveal className="max-w-3xl mx-auto">
               <Slideshow photos={photos} />
@@ -60,7 +61,7 @@ export default function GalleryPage() {
             <div className="max-w-3xl mx-auto card-root p-12 text-center">
               <FiMaximize className="mx-auto w-10 h-10 text-primary/40" />
               <p className="mt-4 text-body dark:text-body-dark">
-                Aucune photo pour le moment. Revenez bientôt !
+                {t('gallery.noPhoto')}
               </p>
             </div>
           )}

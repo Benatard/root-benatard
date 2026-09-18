@@ -11,17 +11,19 @@ import ErrorBanner from '../../components/ui/ErrorBanner';
 import useResource from '../../hooks/useResource';
 import { skillsAPI } from '../../service/api';
 import { normalizeSkills } from '../../config/icons';
+import { useLang } from '../../i18n/LanguageContext';
 
 export default function SkillsPage() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const { data: skills, loading: skillsLoading, error: skillsError } = useResource(skillsAPI.get);
+  const { t } = useLang();
 
   const categories = normalizeSkills(skills)?.categories || [];
 
   if (profileLoading) {
     return (
       <>
-        <PageMeta title="Compétences" />
+        <PageMeta title={t('skills.metaTitle')} />
         <div className="py-8"><Loading variant="hero" /></div>
       </>
     );
@@ -30,9 +32,9 @@ export default function SkillsPage() {
   if (profileError || !profile) {
     return (
       <>
-        <PageMeta title="Compétences" />
+        <PageMeta title={t('skills.metaTitle')} />
         <div className="max-w-5xl mx-auto px-5 py-16 text-center">
-          <ErrorBanner message="Impossible de charger le profil. L'API est peut-être inaccessible." />
+          <ErrorBanner message={t('common.profileLoadError')} />
         </div>
       </>
     );
@@ -40,7 +42,7 @@ export default function SkillsPage() {
 
   return (
     <div>
-      <PageMeta title="Compétences" description="Les technologies que je maîtrise : frontend, backend, bases de données et outils DevOps." />
+      <PageMeta title={t('skills.metaTitle')} description={t('skills.metaDesc')} />
 
       <section className="relative pl-5 overflow-hidden bg-white dark:bg-gray-dark">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(74,108,247,0.12)_1px,transparent_0)] bg-[size:26px_26px] [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_72%)] pointer-events-none" />
@@ -49,15 +51,14 @@ export default function SkillsPage() {
           <Reveal className="max-w-3xl">
             <span className="eyebrow-root">
               <span className="h-1.5 w-1.5 bg-primary inline-block" />
-              Mes compétences
+              {t('skills.eyebrow')}
             </span>
             <h1 className="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-black dark:text-white">
-              Les technologies que{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">je maîtrise</span>
+              {t('skills.title1')}{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">{t('skills.titleHighlight')}</span>
             </h1>
             <p className="mt-6 text-base md:text-lg text-body dark:text-body-dark leading-relaxed">
-              Un profil polyvalent de développeur Full-Stack : du design d'interface React à la
-              conception d'API et de bases de données, en passant par le déploiement.
+              {t('skills.intro')}
             </p>
           </Reveal>
         </div>
@@ -66,14 +67,14 @@ export default function SkillsPage() {
       <section className="bg-transparent">
         <div className="py-16 md:py-19">
           <SectionTitle
-            eyebrow="Niveaux de maîtrise"
-            title="Mes domaines d'expertise"
-            sub="Des niveaux évalués sur la base de mes projets et de ma pratique quotidienne."
+            eyebrow={t('skills.mastery')}
+            title={t('skills.domains')}
+            sub={t('skills.domainsSub')}
           />
           {skillsLoading ? (
             <Loading variant="cardGrid2" />
           ) : skillsError ? (
-            <ErrorBanner message="Impossible de charger les compétences." />
+            <ErrorBanner />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {categories.map(({ icon: Icon, name, color, skills: categorySkills }, index) => (
@@ -116,7 +117,7 @@ export default function SkillsPage() {
           </Reveal>
           <div className="mt-12 text-center">
             <Link to="/projets" className="btn-primary-root">
-              Voir mes projets concrets <FiArrowRight className="w-4 h-4" />
+              {t('skills.seeProjects')} <FiArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>

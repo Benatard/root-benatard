@@ -42,7 +42,7 @@ export default function useAuth() {
       setAuthed(true);
       return { ok: true };
     } catch (err) {
-      setError('Identifiants invalides ou API indisponible');
+      setError('admin.login.credentialsError');
       setAuthed(false);
       return { ok: false };
     } finally {

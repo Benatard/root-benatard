@@ -7,6 +7,7 @@ import Reveal from '../../components/ui/Reveal';
 import Loading from '../../components/ui/Loading';
 import ErrorBanner from '../../components/ui/ErrorBanner';
 import useLMS from '../../hooks/useLMS';
+import { useLang } from '../../i18n/LanguageContext';
 
 const PROGRESS_KEY = 'lms_progress';
 
@@ -26,6 +27,7 @@ const renderText = (text) =>
 
 export default function VideosPage() {
   const { modules, loading, error } = useLMS();
+  const { t } = useLang();
   const list = modules || [];
   const [activeModuleId, setActiveModuleId] = useState(null);
   const [activeLessonId, setActiveLessonId] = useState(null);
@@ -72,8 +74,8 @@ export default function VideosPage() {
   return (
     <div>
       <PageMeta
-        title="Formation"
-        description="Mon mini-LMS : ma méthode de programmation expliquée par modules, avec des tutoriels vidéo et des explications écrites."
+        title={t('videos.metaTitle')}
+        description={t('videos.metaDesc')}
       />
 
       <section className="relative pl-5 overflow-hidden bg-white dark:bg-gray-dark">
@@ -83,16 +85,14 @@ export default function VideosPage() {
           <Reveal className="max-w-3xl">
             <span className="eyebrow-root">
               <span className="h-1.5 w-1.5 bg-primary inline-block" />
-              Apprendre avec moi
+              {t('videos.eyebrow')}
             </span>
             <h1 className="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-black dark:text-white">
-              Ma{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">formation</span>
+              {t('videos.title1')}{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">{t('videos.titleHighlight')}</span>
             </h1>
             <p className="mt-6 text-base md:text-lg text-body dark:text-body-dark leading-relaxed">
-              Ma méthode de développement expliquée par modules : chaque module contient des tutoriels vidéo
-              (YouTube, Drive, Vimeo, Dailymotion) accompagnés d'un résumé écrit. Suivez les leçons et suivez
-              votre progression.
+              {t('videos.intro')}
             </p>
           </Reveal>
         </div>
@@ -103,7 +103,7 @@ export default function VideosPage() {
           {loading ? (
             <Loading variant="cardGrid2" />
           ) : error ? (
-            <ErrorBanner message="Impossible de charger la formation pour le moment." />
+            <ErrorBanner />
           ) : activeModule ? (
             <Reveal>
               <section key={activeModule.id} className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
@@ -113,7 +113,7 @@ export default function VideosPage() {
                     onClick={closeModule}
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
                   >
-                    <FiArrowLeft className="w-4 h-4" /> Tous les modules
+                    <FiArrowLeft className="w-4 h-4" /> {t('videos.allModules')}
                   </button>
 
                   <h2 className="mt-5 text-lg font-extrabold text-black dark:text-white leading-snug">
@@ -127,7 +127,7 @@ export default function VideosPage() {
 
                   <div className="mt-5">
                     <div className="flex items-center justify-between text-xs font-semibold text-body dark:text-body-dark">
-                      <span>{lessons.length} leçon{lessons.length > 1 ? 's' : ''}</span>
+                      <span>{lessons.length} {lessons.length > 1 ? t('videos.lessons') : t('videos.lesson')}</span>
                       <span className="text-primary">{moduleProgress(activeModule)}%</span>
                     </div>
                     <div className="mt-2 h-1.5 bg-gray2 dark:bg-[#2C303B] overflow-hidden">
@@ -161,9 +161,9 @@ export default function VideosPage() {
                             )}
                           </span>
                           <span className="min-w-0 flex-1 leading-snug">
-                            <span className="block truncate">{lesson.title || 'Leçon sans titre'}</span>
+                            <span className="block truncate">{lesson.title || t('videos.untitledLesson')}</span>
                             <span className="block text-[11px] font-medium opacity-60">
-                              Leçon {idx + 1}
+                              {t('videos.lessonN', { n: idx + 1 })}
                             </span>
                           </span>
                         </button>
@@ -188,7 +188,7 @@ export default function VideosPage() {
                             />
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center text-body dark:text-body-dark">
-                              Aucune vidéo pour cette leçon.
+                              {t('videos.videoComing')}
                             </div>
                           )}
                         </div>
@@ -211,7 +211,7 @@ export default function VideosPage() {
                               ) : (
                                 <FiCheckCircle className="w-4 h-4" />
                               )}
-                              {isDone(activeModule.id, activeLesson.id) ? 'Leçon terminée' : 'Marquer comme terminé'}
+                              {isDone(activeModule.id, activeLesson.id) ? t('videos.done') : t('videos.markDone')}
                             </button>
                             <div className="flex items-center gap-2 ml-auto">
                               <button
@@ -220,7 +220,7 @@ export default function VideosPage() {
                                 disabled={activeLessonIdx === 0}
                                 className="btn-outline-root disabled:opacity-40 disabled:cursor-not-allowed"
                               >
-                                Précédent
+                                {t('videos.prev')}
                               </button>
                               <button
                                 type="button"
@@ -228,7 +228,7 @@ export default function VideosPage() {
                                 disabled={activeLessonIdx === lessons.length - 1}
                                 className="btn-outline-root disabled:opacity-40 disabled:cursor-not-allowed"
                               >
-                                Suivant
+                                {t('videos.next')}
                               </button>
                             </div>
                           </div>
@@ -238,7 +238,7 @@ export default function VideosPage() {
                       {activeLesson.content && (
                         <div className="card-root mt-6 p-6 md:p-8">
                           <p className="text-xs font-semibold uppercase tracking-widest text-body dark:text-body-dark">
-                            Résumé de la leçon
+                            {t('videos.keyTakeaways')}
                           </p>
                           <div className="mt-4 space-y-4 text-[15px] text-dark dark:text-body-dark">
                             {renderText(activeLesson.content)}
@@ -250,7 +250,7 @@ export default function VideosPage() {
                     <div className="card-root p-12 text-center">
                       <FiBookOpen className="mx-auto w-10 h-10 text-primary/40" />
                       <p className="mt-4 text-body dark:text-body-dark">
-                        Ce module ne contient aucune leçon pour le moment.
+                        {t('videos.moreLessons')}
                       </p>
                     </div>
                   )}
@@ -270,7 +270,7 @@ export default function VideosPage() {
                     >
                       <div className="flex items-start justify-between gap-4">
                         <h3 className="text-lg font-extrabold text-black dark:text-white leading-snug">
-                          {m.title || 'Module sans titre'}
+                          {m.title || t('videos.untitledModule')}
                         </h3>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 flex-shrink-0">
                           <FiPlayCircle className="w-3.5 h-3.5" />
@@ -285,7 +285,7 @@ export default function VideosPage() {
                       <div className="mt-5">
                         <div className="flex items-center justify-between text-xs font-semibold text-body dark:text-body-dark">
                           <span className="inline-flex items-center gap-1.5">
-                            <FiChevronRight className="w-4 h-4 text-primary" /> Commencer le module
+                            <FiChevronRight className="w-4 h-4 text-primary" /> {t('videos.start')}
                           </span>
                           <span className="text-primary">{done}%</span>
                         </div>
@@ -305,7 +305,7 @@ export default function VideosPage() {
             <div className="card-root p-12 text-center">
               <FiBookOpen className="mx-auto w-10 h-10 text-primary/40" />
               <p className="mt-4 text-body dark:text-body-dark">
-                La formation est en préparation. Revenez bientôt pour découvrir ma méthode de programmation par modules.
+                {t('videos.comingSoon')}
               </p>
             </div>
           )}

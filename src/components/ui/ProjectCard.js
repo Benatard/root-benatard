@@ -1,8 +1,10 @@
 import React from 'react';
 import { FiExternalLink, FiGithub } from 'react-icons/fi';
 import { resolveUploadUrl } from '../../config/config';
+import { useLang } from '../../i18n/LanguageContext';
 
 export default function ProjectCard({ project }) {
+  const { t } = useLang();
   return (
     <div className="group card-root overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1.5">
       <div className="relative h-44 overflow-hidden bg-white dark:bg-gray-dark">
@@ -34,12 +36,12 @@ export default function ProjectCard({ project }) {
         <div className="mt-auto pt-5 flex items-center gap-5 text-sm font-semibold">
           {project.demo && project.demo !== '#' && (
             <a href={project.demo} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-primary hover:underline">
-              <FiExternalLink className="w-4 h-4" /> Démo
+              <FiExternalLink className="w-4 h-4" /> {t('ui.demo')}
             </a>
           )}
           {project.repo && project.repo !== '#' && (
             <a href={project.repo} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-body dark:text-body-dark hover:text-primary transition-colors">
-              <FiGithub className="w-4 h-4" /> Code source
+              <FiGithub className="w-4 h-4" /> {t('ui.sourceCode')}
             </a>
           )}
         </div>

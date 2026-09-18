@@ -5,6 +5,7 @@ import {
 } from 'react-icons/fi';
 import { resolveUploadUrl } from '../../config/config';
 import Loading from '../ui/Loading';
+import { useLang } from '../../i18n/LanguageContext';
 
 const socialIcons = {
   github: FiGithub,
@@ -14,6 +15,7 @@ const socialIcons = {
 };
 
 function ProfilePhotoPopup({ open, onClose, src, alt }) {
+  const { t } = useLang();
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -33,7 +35,7 @@ function ProfilePhotoPopup({ open, onClose, src, alt }) {
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label="Photo de profil agrandie"
+      aria-label={t('aside.photoPopupAria')}
     >
       <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
         <img
@@ -44,7 +46,7 @@ function ProfilePhotoPopup({ open, onClose, src, alt }) {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Fermer la photo"
+          aria-label={t('ui.closePhoto')}
           className="absolute -top-3 -right-3 h-10 w-10 bg-white/10 text-white flex items-center justify-center hover:bg-primary transition-colors rounded-full shadow-lg"
         >
           <FiX className="w-5 h-5" />
@@ -57,16 +59,17 @@ function ProfilePhotoPopup({ open, onClose, src, alt }) {
 
 export default function ProfileAside({ profile, compact = false }) {
   const [photoOpen, setPhotoOpen] = useState(false);
+  const { t } = useLang();
 
   if (!profile) return <Loading variant="profile" />;
 
   const photoUrl = resolveUploadUrl(profile.photo);
 
   const contactRows = [
-    { icon: FiMail, label: 'Email', value: profile.email, href: `mailto:${profile.email}` },
-    { icon: FiPhone, label: 'Téléphone', value: profile.phone, href: `tel:${profile.phone.replace(/\s/g, '')}` },
-    { icon: FiMapPin, label: 'Localisation', value: profile.location },
-    { icon: FiGlobe, label: 'Site Web', value: profile.website, href: `https://${profile.website}` },
+    { icon: FiMail, label: t('aside.contactEmail'), value: profile.email, href: `mailto:${profile.email}` },
+    { icon: FiPhone, label: t('aside.contactPhone'), value: profile.phone, href: `tel:${profile.phone.replace(/\s/g, '')}` },
+    { icon: FiMapPin, label: t('aside.contactLocation'), value: profile.location },
+    { icon: FiGlobe, label: t('aside.contactWebsite'), value: profile.website, href: `https://${profile.website}` },
   ];
 
   if (compact) {
@@ -76,8 +79,8 @@ export default function ProfileAside({ profile, compact = false }) {
           <button
             type="button"
             onClick={() => setPhotoOpen(true)}
-            aria-label={`Agrandir la photo de ${profile.name}`}
-            title="Agrandir la photo"
+            aria-label={t('aside.enlargePhotoOf', { name: profile.name })}
+            title={t('aside.enlargePhoto')}
             className="group relative flex-shrink-0 rounded-full ring-4 ring-primary/20 hover:ring-primary/40 transition-shadow focus:outline-none focus-visible:ring-4 focus-visible:ring-primary"
           >
             <img src={photoUrl} alt={profile.name} className="h-20 w-20 rounded-full object-cover" />
@@ -110,8 +113,8 @@ export default function ProfileAside({ profile, compact = false }) {
           <button
             type="button"
             onClick={() => setPhotoOpen(true)}
-            aria-label={`Agrandir la photo de ${profile.name}`}
-            title="Agrandir la photo"
+            aria-label={t('aside.enlargePhotoOf', { name: profile.name })}
+            title={t('aside.enlargePhoto')}
             className="group relative block mx-auto w-28 h-28 overflow-hidden rounded-lg ring-4 ring-white dark:ring-gray-dark bg-gray2 shadow-card-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-primary"
           >
             <img src={photoUrl} alt={profile.name} className="h-full w-full object-cover" />
@@ -167,15 +170,15 @@ export default function ProfileAside({ profile, compact = false }) {
         <a
           href={resolveUploadUrl(profile.resumeUrl)}
           download
-          aria-label={`Télécharger le CV de ${profile.name}`}
+          aria-label={t('aside.downloadCvOf', { name: profile.name })}
           className="btn-primary-root w-full"
         >
-          <FiDownload className="w-4 h-4" /> Télécharger mon CV
+          <FiDownload className="w-4 h-4" /> {t('aside.downloadCv')}
         </a>
       )}
 
       <div className="card-root p-6">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-body dark:text-body-dark text-center">Retrouvez-moi sur</p>
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-body dark:text-body-dark text-center">{t('aside.findMe')}</p>
         <div className="mt-4 flex items-center justify-center gap-3">
           {(profile.socials || []).map(({ key, label, url }) => {
             const Icon = socialIcons[key] || FiGlobe;

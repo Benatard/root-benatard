@@ -1,5 +1,6 @@
 import React from 'react';
 import PageMeta from '../../components/PageMeta';
+import { useLang } from '../../i18n/LanguageContext';
 
 function Section({ title, children }) {
   return (
@@ -11,56 +12,51 @@ function Section({ title, children }) {
 }
 
 export default function LegalPage() {
+  const { t } = useLang();
   return (
     <div>
       <PageMeta
-        title="Mentions légales"
-        description="Informations d'identification de l'éditeur du site et conditions d'utilisation."
+        title={t('legal.metaTitle')}
+        description={t('legal.metaDesc')}
       />
 
       <div className="space-y-8">
         <div className="pb-4">
-          <span className="eyebrow-root">Légal</span>
+          <span className="eyebrow-root">{t('legal.eyebrow')}</span>
           <h1 className="mt-5 text-3xl md:text-4xl font-extrabold tracking-tight text-black dark:text-white">
-            Mentions légales
+            {t('legal.title')}
           </h1>
           <p className="mt-4 text-sm text-body dark:text-body-dark">
-            Dernière mise à jour : septembre 2026
+            {t('legal.updated')}
           </p>
         </div>
 
-        <Section title="1. Éditeur du site">
-          <p><strong>Propriétaire et éditeur</strong> : Bénatard — développeur Full-Stack.</p>
-          <p>Contact : via le formulaire de contact du site.</p>
+        <Section title={t('legal.s1')}>
+          <p><strong>{t('legal.s1p1Strong')}</strong>{t('legal.s1p1Tail')}</p>
+          <p>{t('legal.s1p2')}</p>
         </Section>
 
-        <Section title="2. Hébergement">
+        <Section title={t('legal.s2')}>
           <p>
-            Le site est hébergé par les serveurs de la plateforme Forge (Forge Console), en charge de
-            l'infrastructure technique et du stockage des données.
+            {t('legal.s2p1')}
           </p>
         </Section>
 
-        <Section title="3. Propriété intellectuelle">
+        <Section title={t('legal.s3')}>
           <p>
-            L'ensemble des contenus présents sur ce site (textes, visuels, logos, code, tutoriels) est la
-            propriété de son éditeur, sauf mention contraire. Toute reproduction, représentation ou diffusion,
-            totale ou partielle, sans autorisation préalable écrite, est interdite.
+            {t('legal.s3p1')}
           </p>
         </Section>
 
-        <Section title="4. Limitation de responsabilité">
+        <Section title={t('legal.s4')}>
           <p>
-            L'éditeur s'efforce d'assurer l'exactitude des informations publiées, mais ne peut garantir leur
-            exhaustivité ou leur absence d'erreur. Ce site peut contenir des liens vers des sites tiers, dont
-            l'éditeur n'est pas responsable du contenu.
+            {t('legal.s4p1')}
           </p>
         </Section>
 
-        <Section title="5. Droit applicable">
+        <Section title={t('legal.s5')}>
           <p>
-            Les présentes mentions sont soumises au droit applicable en vigueur. En cas de litige, les parties
-            s'efforceront de trouver une solution amiable avant toute action judiciaire.
+            {t('legal.s5p1')}
           </p>
         </Section>
       </div>

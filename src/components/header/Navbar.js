@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiMenu, FiX, FiSun, FiMoon, FiArrowRight } from 'react-icons/fi';
+import { FiMenu, FiX, FiSun, FiMoon, FiArrowRight, FiGlobe } from 'react-icons/fi';
 import { publicRoutes } from '../../routes/routes';
+import { useLang } from '../../i18n/LanguageContext';
 
 export default function Navbar({ profile }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -11,6 +12,8 @@ export default function Navbar({ profile }) {
     return saved ? saved === 'dark' : true;
   });
   const location = useLocation();
+  const { lang, setLang, t, LANGS } = useLang();
+  const otherLang = LANGS.find((l) => l.code !== lang) || LANGS[0];
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -37,7 +40,7 @@ export default function Navbar({ profile }) {
           <Link to="/" className="flex items-center gap-3 flex-shrink-0">
             <img
               src="/images/logo-mark.svg"
-              alt={`${profile?.name || 'Accueil'} — logo`}
+              alt={`${profile?.name || t('nav.home')} — logo`}
               className="h-8 w-8"
             />
             <span className="text-xl font-extrabold tracking-tight text-black dark:text-white">
@@ -45,7 +48,7 @@ export default function Navbar({ profile }) {
             </span>
           </Link>
 
-          <nav aria-label="Navigation principale" className="hidden lg:flex items-center gap-5 xl:gap-7">
+          <nav aria-label={t('nav.mainNavigation')} className="hidden lg:flex items-center gap-5 xl:gap-7">
             {publicRoutes.map((route) => {
               const active = location.pathname === route.path;
               return (
@@ -56,7 +59,7 @@ export default function Navbar({ profile }) {
                     active ? 'text-primary' : 'text-dark dark:text-body-dark hover:text-primary'
                   }`}
                 >
-                  {route.label}
+                  {t(route.labelKey)}
                   <span
                     className={`absolute left-0 -bottom-1.5 h-0.5 bg-primary transition-all duration-300 ${
                       active ? 'w-full' : 'w-0 group-hover:w-full'
@@ -70,31 +73,49 @@ export default function Navbar({ profile }) {
           <div className="hidden xl:flex items-center gap-4">
             <button
               onClick={() => setDark(!dark)}
-              aria-label="Basculer le thème"
+              aria-label={t('nav.themeToggle')}
               className="h-10 w-10 flex items-center justify-center text-dark dark:text-white hover:text-primary hover:ring-4 hover:ring-primary/15 transition-all"
             >
               {dark ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={() => setLang(otherLang.code)}
+              aria-label={t('nav.switchLanguage')}
+              title={otherLang.label}
+              className="h-10 px-2.5 flex items-center gap-1.5 text-dark dark:text-white hover:text-primary transition-colors"
+            >
+              <FiGlobe className="w-4 h-4" />
+              <span className="text-xs font-bold">{lang === 'fr' ? 'EN' : 'FR'}</span>
             </button>
             <Link
               to="/contact"
               className="inline-flex items-center gap-2 px-5 py-2.5 text-sm text-dark font-semibold dark:text-white hover:bg-primary-dark hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300"
             >
-              Me contacter <FiArrowRight className="w-4 h-4" />
+              {t('nav.contactCta')} <FiArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
           <div className="lg:hidden flex items-center gap-3">
             <button
               onClick={() => setDark(!dark)}
-              aria-label="Basculer le thème"
+              aria-label={t('nav.themeToggle')}
               className="h-10 w-10 bg-gray2 dark:bg-[#2C303B] flex items-center justify-center text-dark dark:text-white hover:text-primary transition-colors"
             >
               {dark ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
             </button>
             <button
+              onClick={() => setLang(otherLang.code)}
+              aria-label={t('nav.switchLanguage')}
+              title={otherLang.label}
+              className="h-10 px-2.5 bg-gray2 dark:bg-[#2C303B] flex items-center gap-1.5 text-dark dark:text-white hover:text-primary transition-colors"
+            >
+              <FiGlobe className="w-4 h-4" />
+              <span className="text-xs font-bold">{lang === 'fr' ? 'EN' : 'FR'}</span>
+            </button>
+            <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="text-dark dark:text-white"
-              aria-label="Menu"
+              aria-label={t('nav.menu')}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
             >
@@ -112,12 +133,12 @@ export default function Navbar({ profile }) {
                 className={`block text-base font-medium ${location.pathname === route.path ? 'text-primary' : 'text-dark dark:text-body-dark'}`}
                 onClick={() => setMobileOpen(false)}
               >
-                {route.label}
+                {t(route.labelKey)}
               </Link>
             ))}
             <div className="pt-2">
               <Link to="/contact" className="btn-primary-root w-full" onClick={() => setMobileOpen(false)}>
-                Me contacter <FiArrowRight className="w-4 h-4" />
+                {t('nav.contactCta')} <FiArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>

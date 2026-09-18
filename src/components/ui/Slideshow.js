@@ -1,17 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi';
+import { useLang } from '../../i18n/LanguageContext';
 
 const FALLBACK_IMG = '/images/resource-placeholder.svg';
 
 function SlideImage({ src, alt, onClick, className, onLoad }) {
   const [failed, setFailed] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => setFailed(false), [src]);
 
   return (
     <img
       src={failed ? FALLBACK_IMG : src}
-      alt={alt || 'Photo'}
+      alt={alt || t('ui.photo')}
       loading="lazy"
       onClick={onClick}
       onLoad={(e) => onLoad && onLoad({ width: e.target.naturalWidth, height: e.target.naturalHeight })}
@@ -41,6 +43,7 @@ export default function Slideshow({
   const [ratios, setRatios] = useState({});
   const startX = useRef(null);
   const photosRef = useRef(photos);
+  const { t } = useLang();
 
   const list = useMemo(() => (Array.isArray(photos) ? photos : []), [photos]);
 
@@ -138,7 +141,7 @@ export default function Slideshow({
               e.stopPropagation();
               prev();
             }}
-            aria-label="Photo précédente"
+            aria-label={t('ui.slideshowPrev')}
             className="pointer-events-auto h-10 w-10 md:h-12 md:w-12 bg-white/85 dark:bg-gray-dark/85 text-dark dark:text-white flex items-center justify-center hover:bg-primary hover:text-white transition-colors shadow-lg"
           >
             <FiChevronLeft className="w-5 h-5" />
@@ -149,7 +152,7 @@ export default function Slideshow({
               e.stopPropagation();
               next();
             }}
-            aria-label="Photo suivante"
+            aria-label={t('ui.slideshowNext')}
             className="pointer-events-auto h-10 w-10 md:h-12 md:w-12 bg-white/85 dark:bg-gray-dark/85 text-dark dark:text-white flex items-center justify-center hover:bg-primary hover:text-white transition-colors shadow-lg"
           >
             <FiChevronRight className="w-5 h-5" />
@@ -167,7 +170,7 @@ export default function Slideshow({
             key={p.id || i}
             type="button"
             onClick={() => goTo(i)}
-            aria-label={`Aller à la photo ${i + 1}`}
+            aria-label={t('ui.slideshowGoto', { n: i + 1 })}
             className={`h-2.5 rounded-full transition-all duration-300 ${
               i === index ? 'w-7 bg-primary' : 'w-2.5 bg-stroke dark:bg-[#2C303B] hover:bg-primary/50'
             }`}
@@ -209,7 +212,7 @@ export default function Slideshow({
               type="button"
               onClick={() => lightbox && setLightboxOpen(true)}
               className="w-full h-full cursor-pointer focus:outline-none"
-              aria-label={`Agrandir ${p.title || 'la photo'}`}
+              aria-label={`${t('ui.enlarge')} ${p.title || t('ui.thePhoto')}`}
             >
               <SlideImage
                     src={p.image}
@@ -290,7 +293,7 @@ export default function Slideshow({
           <button
             type="button"
             onClick={() => setLightboxOpen(false)}
-            aria-label="Fermer la visionneuse"
+            aria-label={t('ui.lightboxClose')}
             className="absolute top-4 right-4 md:top-6 md:right-6 h-11 w-11 bg-white/10 text-white flex items-center justify-center hover:bg-primary transition-colors"
           >
             <FiX className="w-5 h-5" />
@@ -324,7 +327,7 @@ export default function Slideshow({
               <button
                 type="button"
                 onClick={prev}
-                aria-label="Photo précédente"
+                aria-label={t('ui.slideshowPrev')}
                 className="h-12 w-12 bg-white/10 text-white flex items-center justify-center hover:bg-primary transition-colors"
               >
                 <FiChevronLeft className="w-6 h-6" />
@@ -336,7 +339,7 @@ export default function Slideshow({
               <button
                 type="button"
                 onClick={next}
-                aria-label="Photo suivante"
+                aria-label={t('ui.slideshowNext')}
                 className="h-12 w-12 bg-white/10 text-white flex items-center justify-center hover:bg-primary transition-colors"
               >
                 <FiChevronRight className="w-6 h-6" />

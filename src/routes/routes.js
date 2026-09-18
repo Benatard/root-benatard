@@ -1,10 +1,10 @@
 export const publicRoutes = [
-  { path: '/', label: 'Accueil' },
-  { path: '/a-propos', label: 'À propos' },
-  { path: '/competences', label: 'Compétences' },
-  { path: '/projets', label: 'Projets' },
-  { path: '/ressources', label: 'Ressources' },
-  { path: '/videos', label: 'Formation' },
-  { path: '/galerie', label: 'Galerie' },
-  { path: '/contact', label: 'Contact' },
+  { path: '/', labelKey: 'nav.home' },
+  { path: '/a-propos', labelKey: 'nav.about' },
+  { path: '/competences', labelKey: 'nav.skills' },
+  { path: '/projets', labelKey: 'nav.projects' },
+  { path: '/ressources', labelKey: 'nav.resources' },
+  { path: '/videos', labelKey: 'nav.videos' },
+  { path: '/galerie', labelKey: 'nav.gallery' },
+  { path: '/contact', labelKey: 'nav.contact' },
 ];

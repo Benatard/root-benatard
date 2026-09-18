@@ -7,8 +7,10 @@ import ErrorBanner from '../../../components/ui/ErrorBanner';
 import { syncList } from '../../../service/adminSync';
 import AdminListEditor from '../../../components/admin/AdminListEditor';
 import { toast } from '../../../service/swal';
+import { useLang } from '../../../i18n/LanguageContext';
 
 export default function ProjectsSection() {
+  const { t } = useLang();
   const { data: projects, loading, error } = useResource(projectsAPI.get);
   const [items, setItems] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -25,9 +27,9 @@ export default function ProjectsSection() {
     try {
       await syncList(projectsAPI, savedRef.current, items);
       savedRef.current = items;
-      toast('success', 'Projets synchronisés');
+      toast('success', t('admin.projects.saved'));
     } catch {
-      toast('error', "Échec de l'enregistrement : API inaccessible");
+      toast('error', t('admin.saveError'));
     } finally {
       setSaving(false);
     }
@@ -36,14 +38,14 @@ export default function ProjectsSection() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-black dark:text-white">Projets</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-black dark:text-white">{t('admin.projects.title')}</h1>
         <p className="mt-2 text-sm text-body dark:text-body-dark">
-          Cliquez sur un projet pour le modifier, ajoutez-en avec le bouton en bas, puis enregistrez tout.
+          {t('admin.projects.sub')}
         </p>
       </div>
 
       {loading && <Loading variant="list" />}
-      {error && <ErrorBanner message="API inaccessible : impossible de charger ou de synchroniser les projets." />}
+      {error && <ErrorBanner message={t('admin.projects.error')} />}
 
       {!loading && !error && (
         <>
@@ -52,21 +54,21 @@ export default function ProjectsSection() {
             onChange={setItems}
             titleKey="title"
             newItem={{ title: '', category: '', year: '', image: '', desc: '', stack: [], demo: '', repo: '' }}
-            addLabel="Ajouter un projet"
+            addLabel={t('admin.projects.add')}
             fields={[
-              { key: 'title', label: 'Titre du projet' },
-              { key: 'category', label: 'Catégorie', placeholder: 'Application web' },
-              { key: 'year', label: 'Année' },
-              { key: 'image', label: 'Image (URL)', type: 'image' },
-              { key: 'desc', label: 'Description', type: 'textarea', rows: 4, full: true },
-              { key: 'stack', label: 'Technologies (virgules)', type: 'tags', full: true },
-              { key: 'demo', label: 'Lien démo', type: 'url' },
-              { key: 'repo', label: 'Lien code source', type: 'url' },
+              { key: 'title', label: t('admin.projects.field.title') },
+              { key: 'category', label: t('admin.projects.field.category'), placeholder: t('admin.projects.field.categoryPlaceholder') },
+              { key: 'year', label: t('admin.projects.field.year') },
+              { key: 'image', label: t('admin.projects.field.image'), type: 'image' },
+              { key: 'desc', label: t('admin.projects.field.desc'), type: 'textarea', rows: 4, full: true },
+              { key: 'stack', label: t('admin.projects.field.stack'), type: 'tags', full: true },
+              { key: 'demo', label: t('admin.projects.field.demo'), type: 'url' },
+              { key: 'repo', label: t('admin.projects.field.repo'), type: 'url' },
             ]}
           />
 
           <button onClick={save} disabled={saving} className="btn-primary-root w-full disabled:opacity-60">
-            <FiSave className="w-4 h-4" /> {saving ? 'Enregistrement...' : 'Enregistrer les projets'}
+            <FiSave className="w-4 h-4" /> {saving ? t('common.saving') : t('admin.projects.save')}
           </button>
         </>
       )}

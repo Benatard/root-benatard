@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { FiArrowUp } from 'react-icons/fi';
+import { useLang } from '../../i18n/LanguageContext';
 
 export default function BackToTop() {
   const [visible, setVisible] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 400);
@@ -12,7 +14,7 @@ export default function BackToTop() {
 
   return (
     <button
-      aria-label="Retour en haut"
+      aria-label={t('ui.backToTop')}
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       className={`fixed bottom-6 right-6 z-40 h-11 w-11 bg-primary text-white shadow-card-hover hover:bg-primary-dark hover:-translate-y-1 transition-all duration-300 flex items-center justify-center ${
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none translate-y-2'

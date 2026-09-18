@@ -9,11 +9,13 @@ import Loading from '../../components/ui/Loading';
 import ErrorBanner from '../../components/ui/ErrorBanner';
 import useResource from '../../hooks/useResource';
 import { projectsAPI } from '../../service/api';
+import { useLang } from '../../i18n/LanguageContext';
 
 const filters = ['Tous', 'Full-Stack Web', 'ERP', 'SaaS', 'Frontend', 'Embedded'];
 
 export default function ProjectsPage() {
   const { data: projects, loading, error } = useResource(projectsAPI.get);
+  const { t } = useLang();
   const [activeFilter, setActiveFilter] = useState('Tous');
 
   const list = Array.isArray(projects) ? projects : [];
@@ -21,7 +23,7 @@ export default function ProjectsPage() {
 
   return (
     <div>
-      <PageMeta title="Projets" description="Découvrez mes projets de développement web : ERP, SaaS, applications full-stack." />
+      <PageMeta title={t('projects.metaTitle')} description={t('projects.metaDesc')} />
 
       <section className="relative pl-5 overflow-hidden bg-white dark:bg-gray-dark">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(74,108,247,0.12)_1px,transparent_0)] bg-[size:26px_26px] [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_72%)] pointer-events-none" />
@@ -30,15 +32,14 @@ export default function ProjectsPage() {
           <Reveal className="max-w-3xl">
             <span className="eyebrow-root">
               <span className="h-1.5 w-1.5 bg-primary inline-block" />
-              Mes réalisations
+              {t('projects.eyebrow')}
             </span>
             <h1 className="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-black dark:text-white">
-              Mes{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">projets</span>
+              {t('projects.title1')}{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">{t('projects.titleHighlight')}</span>
             </h1>
             <p className="mt-6 text-base md:text-lg text-body dark:text-body-dark leading-relaxed">
-              Des applications web complètes, du design à la mise en production : ERP, SaaS,
-              dashboards et sites vitrines.
+              {t('projects.intro')}
             </p>
           </Reveal>
         </div>
@@ -57,7 +58,7 @@ export default function ProjectsPage() {
                     : 'bg-white dark:bg-gray-dark text-body dark:text-body-dark hover:text-primary shadow-card'
                 }`}
               >
-                {filter}
+                {filter === 'Tous' ? t('projects.filterAll') : filter}
               </button>
             ))}
           </div>
@@ -65,7 +66,7 @@ export default function ProjectsPage() {
           {loading ? (
             <Loading variant="cards" />
           ) : error ? (
-            <ErrorBanner message="Impossible de charger les projets." />
+            <ErrorBanner />
           ) : filtered.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((project, index) => (
@@ -76,7 +77,7 @@ export default function ProjectsPage() {
             </div>
           ) : (
             <div className="card-root p-12 text-center">
-              <p className="text-body dark:text-body-dark">Aucun projet dans cette catégorie pour le moment.</p>
+              <p className="text-body dark:text-body-dark">{t('projects.noProjects')}</p>
             </div>
           )}
         </div>
@@ -89,14 +90,14 @@ export default function ProjectsPage() {
               <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none" />
               <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-black/10 blur-2xl pointer-events-none" />
               <h2 className="relative text-2xl md:text-3xl font-bold tracking-tight text-white">
-                Vous avez un projet similaire en tête ?
+                {t('projects.ctaTitle')}
               </h2>
               <p className="relative mt-4 text-white/80 max-w-xl mx-auto">
-                Parlons-en ensemble : je peux vous aider à le concrétiser, du cahier des charges au déploiement.
+                {t('projects.ctaDesc')}
               </p>
               <div className="relative mt-8 flex justify-center">
                 <Link to="/contact" className="btn-white-root">
-                  Discuter de mon projet <FiArrowRight className="w-4 h-4" />
+                  {t('projects.ctaButton')} <FiArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+import { t } from '../i18n/i18n';
 
 export const toast = (icon, title) => {
   Swal.fire({ icon, title, toast: true, position: 'top-end', showConfirmButton: false, timer: 2500, timerProgressBar: true });
@@ -9,13 +10,13 @@ export const showSuccess = (title) => {
 };
 
 export const showError = (msg) => {
-  Swal.fire({ icon: 'error', title: 'Erreur', text: msg, confirmButtonColor: '#0A192F' });
+  Swal.fire({ icon: 'error', title: t('common.error'), text: msg, confirmButtonColor: '#0A192F' });
 };
 
 export const confirmAction = async ({
-  title = 'Confirmer la suppression ?',
-  text = 'Cette action est irréversible.',
-  confirmText = 'Supprimer',
+  title = t('common.confirmDeleteTitle'),
+  text = t('common.confirmDeleteText'),
+  confirmText = t('common.delete'),
 } = {}) => {
   const result = await Swal.fire({
     icon: 'warning',
@@ -25,7 +26,7 @@ export const confirmAction = async ({
     confirmButtonColor: '#dc2626',
     cancelButtonColor: '#0A192F',
     confirmButtonText: confirmText,
-    cancelButtonText: 'Annuler',
+    cancelButtonText: t('common.cancel'),
   });
   return result.isConfirmed;
 };

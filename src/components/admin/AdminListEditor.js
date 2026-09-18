@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { FiPlus, FiTrash2, FiChevronDown, FiChevronUp, FiSave } from 'react-icons/fi';
+import { useLang } from '../../i18n/LanguageContext';
 
 const FALLBACK_IMG = '/images/resource-placeholder.svg';
 
 function FieldInput({ field, value, onChange }) {
+  const { t } = useLang();
   if (field.type === 'textarea') {
     return (
       <textarea
@@ -22,7 +24,7 @@ function FieldInput({ field, value, onChange }) {
         value={text}
         onChange={(e) => onChange(e.target.value.split(',').map((s) => s.trim()).filter(Boolean))}
         className="input-root"
-        placeholder={field.placeholder || 'Éléments séparés par des virgules'}
+        placeholder={field.placeholder || t('admin.editor.tagsPlaceholder')}
       />
     );
   }
@@ -49,7 +51,7 @@ function FieldInput({ field, value, onChange }) {
           <div className="relative h-32 overflow-hidden bg-gray2 dark:bg-[#2C303B]">
             <img
               src={value}
-              alt="Aperçu"
+              alt={t('common.preview')}
               className="w-full h-full object-cover"
               onError={(e) => {
                 e.target.onerror = null;
@@ -78,12 +80,13 @@ export default function AdminListEditor({
   fields = [],
   newItem = {},
   titleKey = 'title',
-  addLabel = 'Ajouter',
+  addLabel = '',
   onSaveItem,
   onRemoveItem,
   hideAdd = false,
 }) {
   const [openIndex, setOpenIndex] = useState(null);
+  const { t } = useLang();
 
   const update = (idx, patch) => onChange(items.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
   const remove = (idx) => onChange(items.filter((_, i) => i !== idx));
@@ -116,7 +119,7 @@ export default function AdminListEditor({
                   <FiChevronDown className="w-4 h-4 text-primary flex-shrink-0" />
                 )}
                 <span className="text-sm font-bold text-dark dark:text-white truncate">
-                  {item[titleKey] || 'Nouvel élément'}
+                  {item[titleKey] || t('admin.editor.newItem')}
                 </span>
               </button>
               {onSaveItem && (
@@ -125,13 +128,13 @@ export default function AdminListEditor({
                   onClick={() => onSaveItem(item)}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-primary hover:bg-primary-dark transition-colors"
                 >
-                  <FiSave className="w-3.5 h-3.5" /> Enregistrer
+                  <FiSave className="w-3.5 h-3.5" /> {t('admin.editor.save')}
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => handleRemove(item, idx)}
-                aria-label="Supprimer"
+                aria-label={t('admin.editor.deleteAria')}
                 className="h-9 w-9 flex-shrink-0 bg-red-50 dark:bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
               >
                 <FiTrash2 className="w-4 h-4" />
@@ -152,7 +155,7 @@ export default function AdminListEditor({
       })}
       {!hideAdd && (
         <button type="button" onClick={add} className="btn-outline-root w-full">
-          <FiPlus className="w-4 h-4" /> {addLabel}
+          <FiPlus className="w-4 h-4" /> {addLabel || t('common.add')}
         </button>
       )}
     </div>

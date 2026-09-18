@@ -1,5 +1,6 @@
 import React from 'react';
 import PageMeta from '../../components/PageMeta';
+import { useLang } from '../../i18n/LanguageContext';
 
 function Section({ title, children }) {
   return (
@@ -11,78 +12,72 @@ function Section({ title, children }) {
 }
 
 export default function PrivacyPage() {
+  const { t } = useLang();
   return (
     <div>
       <PageMeta
-        title="Politique de confidentialité"
-        description="Comment vos données personnelles sont collectées et traitées sur ce portfolio."
+        title={t('privacy.metaTitle')}
+        description={t('privacy.metaDesc')}
       />
 
       <div className="space-y-8">
         <div className="pb-4">
-          <span className="eyebrow-root">Confidentialité</span>
+          <span className="eyebrow-root">{t('privacy.eyebrow')}</span>
           <h1 className="mt-5 text-3xl md:text-4xl font-extrabold tracking-tight text-black dark:text-white">
-            Politique de confidentialité
+            {t('privacy.title')}
           </h1>
           <p className="mt-4 text-sm text-body dark:text-body-dark">
-            Dernière mise à jour : septembre 2026
+            {t('privacy.updated')}
           </p>
         </div>
 
-        <Section title="1. Responsable du traitement">
+        <Section title={t('privacy.s1')}>
           <p>
-            Le présent site est édité par Bénatard, en qualité de développeur indépendant. Toute question
-            relative au traitement de vos données peut être adressée via le formulaire de contact du site.
+            {t('privacy.s1p1')}
           </p>
         </Section>
 
-        <Section title="2. Données collectées">
-          <p>Seules les données que vous nous transmettez volontairement sont collectées :</p>
+        <Section title={t('privacy.s2')}>
+          <p>{t('privacy.s2p1')}</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Formulaire de contact</strong> : nom, adresse e-mail et contenu du message.</li>
-            <li><strong>Newsletter</strong> : adresse e-mail, pour l'envoi d'actualités.</li>
+            <li><strong>{t('privacy.s2li1Strong')}</strong>{t('privacy.s2li1Tail')}</li>
+            <li><strong>{t('privacy.s2li2Strong')}</strong>{t('privacy.s2li2Tail')}</li>
           </ul>
           <p>
-            Les données saisies sont stockées de manière sécurisée via la plateforme Forge, qui n'est utilisée
-            que comme hébergeur de données. Aucune autre donnée personnelle n'est collectée à votre insu.
+            {t('privacy.s2p2')}
           </p>
         </Section>
 
-        <Section title="3. Finalités du traitement">
-          <p>Vos données sont utilisées uniquement pour :</p>
+        <Section title={t('privacy.s3')}>
+          <p>{t('privacy.s3p1')}</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>répondre à vos demandes via le formulaire de contact ;</li>
-            <li>vous envoyer la newsletter à laquelle vous avez consenti.</li>
+            <li>{t('privacy.s3li1')}</li>
+            <li>{t('privacy.s3li2')}</li>
           </ul>
-          <p>Ces données ne sont jamais vendues ni transmises à des tiers à des fins commerciales.</p>
+          <p>{t('privacy.s3p2')}</p>
         </Section>
 
-        <Section title="4. Base légale">
+        <Section title={t('privacy.s4')}>
           <p>
-            Les traitements reposent sur votre consentement (article 6.1.a du RGPD) pour la newsletter et sur
-            l'intérêt légitime à répondre à vos demandes pour le formulaire de contact.
+            {t('privacy.s4p1')}
           </p>
         </Section>
 
-        <Section title="5. Durée de conservation">
+        <Section title={t('privacy.s5')}>
           <p>
-            Les messages de contact sont conservés le temps nécessaire à la gestion de votre demande.
-            Les adresses de newsletter sont conservées jusqu'à votre désinscription.
+            {t('privacy.s5p1')}
           </p>
         </Section>
 
-        <Section title="6. Cookies et stockage local">
+        <Section title={t('privacy.s6')}>
           <p>
-            Ce site n'utilise pas de cookies de mesure d'audience. Une préférence de thème (clair / sombre) est
-            mémorisée localement sur votre navigateur (localStorage) ; elle n'est jamais transmise à des tiers.
+            {t('privacy.s6p1')}
           </p>
         </Section>
 
-        <Section title="7. Vos droits">
+        <Section title={t('privacy.s7')}>
           <p>
-            Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation,
-            d'opposition et de portabilité de vos données. Pour exercer ces droits, contactez-nous via le
-            formulaire de contact du site.
+            {t('privacy.s7p1')}
           </p>
         </Section>
       </div>

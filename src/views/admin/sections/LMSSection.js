@@ -5,10 +5,12 @@ import { toEmbedUrl } from '../../../service/videoEmbed';
 import Loading from '../../../components/ui/Loading';
 import ErrorBanner from '../../../components/ui/ErrorBanner';
 import { toast } from '../../../service/swal';
+import { useLang } from '../../../i18n/LanguageContext';
 
 const uid = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
 export default function LMSSection() {
+  const { t } = useLang();
   const { modules, loading, error, save } = useLMS();
   const [items, setItems] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -56,24 +58,23 @@ export default function LMSSection() {
     const { ok } = await save(items);
     setSaving(false);
     if (ok) {
-      toast('success', 'Formation enregistrée');
+      toast('success', t('admin.lms.saved'));
     } else {
-      toast('error', "Échec de l'enregistrement : API inaccessible");
+      toast('error', t('admin.saveError'));
     }
   };
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-black dark:text-white">Formation</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-black dark:text-white">{t('admin.lms.title')}</h1>
         <p className="mt-2 text-sm text-body dark:text-body-dark">
-          Le mini-LMS : des modules (ma méthode de programmation) composés de leçons avec une vidéo (YouTube,
-          Drive, Vimeo, Dailymotion) et un contenu écrit.
+          {t('admin.lms.sub')}
         </p>
       </div>
 
       {loading && <Loading variant="list" />}
-      {error && <ErrorBanner message="API inaccessible : impossible de charger ou d'enregistrer la formation." />}
+      {error && <ErrorBanner message={t('admin.lms.error')} />}
 
       {!loading && !error && (
         <>
@@ -84,12 +85,12 @@ export default function LMSSection() {
                   value={module.title || ''}
                   onChange={(e) => updateModule(module.id, { title: e.target.value })}
                   className="input-root flex-1"
-                  placeholder="Titre du module (ex : Ma méthode de programmation)"
+                  placeholder={t('admin.lms.modulePlaceholder')}
                 />
                 <button
                   type="button"
                   onClick={() => removeModule(module.id)}
-                  aria-label="Supprimer le module"
+                  aria-label={t('admin.lms.deleteModule')}
                   className="h-9 w-9 flex-shrink-0 bg-red-50 dark:bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
                 >
                   <FiTrash2 className="w-4 h-4" />
@@ -97,13 +98,13 @@ export default function LMSSection() {
               </div>
 
               <div>
-                <label className="label-root mb-2">Description du module (écrit)</label>
+                <label className="label-root mb-2">{t('admin.lms.moduleDescription')}</label>
                 <textarea
                   value={module.description || ''}
                   onChange={(e) => updateModule(module.id, { description: e.target.value })}
                   rows="3"
                   className="input-root"
-                  placeholder="Ce que l'apprenant découvrira dans ce module..."
+                  placeholder={t('admin.lms.moduleDescriptionPlaceholder')}
                 />
               </div>
 
@@ -120,12 +121,12 @@ export default function LMSSection() {
                           value={lesson.title || ''}
                           onChange={(e) => updateLesson(module.id, lesson.id, { title: e.target.value })}
                           className="input-root flex-1"
-                          placeholder="Titre de la leçon"
+                          placeholder={t('admin.lms.lessonPlaceholder')}
                         />
                         <button
                           type="button"
                           onClick={() => removeLesson(module.id, lesson.id)}
-                          aria-label="Supprimer la leçon"
+                          aria-label={t('admin.lms.deleteLesson')}
                           className="h-9 w-9 flex-shrink-0 bg-red-50 dark:bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
                         >
                           <FiTrash2 className="w-4 h-4" />
@@ -133,7 +134,7 @@ export default function LMSSection() {
                       </div>
 
                       <div>
-                        <label className="label-root mb-2">Lien de la vidéo</label>
+                        <label className="label-root mb-2">{t('admin.lms.videoLink')}</label>
                         <input
                           value={lesson.url || ''}
                           onChange={(e) => handleUrlChange(module.id, lesson.id, e.target.value)}
@@ -142,12 +143,12 @@ export default function LMSSection() {
                         />
                         {embed ? (
                           <p className="mt-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                            Lien valide — {embed.provider}
+                            {t('admin.videos.validLink', { provider: embed.provider })}
                           </p>
                         ) : (
                           lesson.url && (
                             <p className="mt-2 text-sm font-semibold text-red-500">
-                              Lien non reconnu — utilisez un lien YouTube, Google Drive, Vimeo ou Dailymotion
+                              {t('admin.videos.invalidLink')}
                             </p>
                           )
                         )}
@@ -156,7 +157,7 @@ export default function LMSSection() {
                             <div className="relative aspect-video bg-black">
                               <iframe
                                 src={embed.embedUrl}
-                                title={`Aperçu — ${lesson.title || 'leçon'}`}
+                                title={t('admin.lms.previewTitle', { title: lesson.title || t('videos.lesson') })}
                                 className="absolute inset-0 w-full h-full"
                                 frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -168,13 +169,13 @@ export default function LMSSection() {
                       </div>
 
                       <div>
-                        <label className="label-root mb-2">Contenu écrit (optionnel)</label>
+                        <label className="label-root mb-2">{t('admin.lms.contentLabel')}</label>
                         <textarea
                           value={lesson.content || ''}
                           onChange={(e) => updateLesson(module.id, lesson.id, { content: e.target.value })}
                           rows="4"
                           className="input-root"
-                          placeholder="Le récapitulatif écrit de la leçon..."
+                          placeholder={t('admin.lms.contentPlaceholder')}
                         />
                       </div>
                     </div>
@@ -187,17 +188,17 @@ export default function LMSSection() {
                 onClick={() => addLesson(module.id)}
                 className="btn-outline-root w-full"
               >
-                <FiPlus className="w-4 h-4" /> Ajouter une leçon
+                <FiPlus className="w-4 h-4" /> {t('admin.lms.addLesson')}
               </button>
             </div>
           ))}
 
           <button type="button" onClick={addModule} className="btn-outline-root w-full">
-            <FiPlus className="w-4 h-4" /> Ajouter un module
+            <FiPlus className="w-4 h-4" /> {t('admin.lms.addModule')}
           </button>
 
           <button onClick={handleSave} disabled={saving} className="btn-primary-root w-full disabled:opacity-60">
-            <FiSave className="w-4 h-4" /> {saving ? 'Enregistrement...' : 'Enregistrer la formation'}
+            <FiSave className="w-4 h-4" /> {saving ? t('common.saving') : t('admin.lms.save')}
           </button>
         </>
       )}

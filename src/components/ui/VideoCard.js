@@ -1,12 +1,14 @@
 import React from 'react';
 import { FiTrash2 } from 'react-icons/fi';
 import { toast } from '../../service/swal';
+import { useLang } from '../../i18n/LanguageContext';
 
 export default function VideoCard({ video, onRemove, removable = false }) {
+  const { lang, t } = useLang();
   const handleRemove = async () => {
     const result = await onRemove(video.id);
     if (result && result.ok === false) {
-      toast('error', 'Échec de la suppression : API inaccessible');
+      toast('error', t('ui.deleteFailed'));
     }
   };
 
@@ -28,7 +30,7 @@ export default function VideoCard({ video, onRemove, removable = false }) {
           {removable && onRemove && (
             <button
               onClick={handleRemove}
-              aria-label="Supprimer la vidéo"
+              aria-label={t('ui.deleteVideo')}
               className="h-8 w-8 flex-shrink-0 bg-red-50 dark:bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
             >
               <FiTrash2 className="w-3.5 h-3.5" />
@@ -40,7 +42,7 @@ export default function VideoCard({ video, onRemove, removable = false }) {
         )}
         {video.date && (
           <p className="mt-auto pt-3 text-[11px] font-semibold uppercase tracking-widest text-body dark:text-body-dark">
-            Publié le {new Date(video.date).toLocaleDateString('fr-FR')}
+            {t('ui.publishedOn', { date: new Date(video.date).toLocaleDateString(lang === 'en' ? 'en-GB' : 'fr-FR') })}
           </p>
         )}
       </div>

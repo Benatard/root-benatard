@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { FiLock, FiShield, FiMail } from 'react-icons/fi';
 import config from '../../config/config';
+import { useLang } from '../../i18n/LanguageContext';
 
 export default function AdminLogin({ onLogin, loading = false, error = null }) {
   const [email, setEmail] = useState(config.ADMIN_EMAIL || '');
   const [password, setPassword] = useState('');
+  const { t } = useLang();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -18,14 +20,14 @@ export default function AdminLogin({ onLogin, loading = false, error = null }) {
         <div className="mx-auto h-14 w-14 bg-primary/10 flex items-center justify-center">
           <FiLock className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="mt-5 text-center text-2xl font-extrabold text-black dark:text-white">Espace Admin</h1>
+        <h1 className="mt-5 text-center text-2xl font-extrabold text-black dark:text-white">{t('admin.login.title')}</h1>
         <p className="mt-2 text-center text-sm text-body dark:text-body-dark">
-          Connectez-vous avec votre compte admin Forge pour accéder au dashboard.
+          {t('admin.login.sub')}
         </p>
 
         <div className="mt-7 space-y-4">
           <div>
-            <label className="label-root mb-2">Email</label>
+            <label className="label-root mb-2">{t('admin.login.email')}</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2">
                 <FiMail className="w-4 h-4 text-body dark:text-body-dark" />
@@ -41,7 +43,7 @@ export default function AdminLogin({ onLogin, loading = false, error = null }) {
             </div>
           </div>
           <div>
-            <label className="label-root mb-2">Mot de passe</label>
+            <label className="label-root mb-2">{t('admin.login.password')}</label>
             <input
               type="password"
               value={password}
@@ -52,14 +54,14 @@ export default function AdminLogin({ onLogin, loading = false, error = null }) {
           </div>
         </div>
 
-        {error && <p className="mt-3 text-sm font-semibold text-red-500">{error}</p>}
+        {error && <p className="mt-3 text-sm font-semibold text-red-500">{t(error)}</p>}
 
         <button type="submit" disabled={loading} className="btn-primary-root w-full mt-6 disabled:opacity-60">
-          {loading ? 'Connexion...' : 'Se connecter'}
+          {loading ? t('admin.login.connecting') : t('admin.login.connect')}
         </button>
 
         <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-body dark:text-body-dark text-center">
-          <FiShield className="w-3.5 h-3.5" /> Authentification sécurisée via Forge (JWT)
+          <FiShield className="w-3.5 h-3.5" /> {t('admin.login.secure')}
         </p>
       </form>
     </div>

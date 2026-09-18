@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { FiExternalLink, FiTrash2, FiSmartphone, FiGlobe } from 'react-icons/fi';
 import { resolveUploadUrl } from '../../config/config';
 import { toast } from '../../service/swal';
+import { useLang } from '../../i18n/LanguageContext';
 
 const FALLBACK_IMG = '/images/resource-placeholder.svg';
 
 export default function ResourceCard({ resource, onRemove, removable = false }) {
   const [imgSrc, setImgSrc] = useState(resolveUploadUrl(resource.image) || FALLBACK_IMG);
+  const { t } = useLang();
   const isApp = resource.type === 'app';
 
   const handleRemove = async () => {
     const result = await onRemove(resource.id);
     if (result && result.ok === false) {
-      toast('error', 'Échec de la suppression : API inaccessible');
+      toast('error', t('ui.deleteFailed'));
     }
   };
 
@@ -27,7 +29,7 @@ export default function ResourceCard({ resource, onRemove, removable = false }) 
           onError={() => setImgSrc(FALLBACK_IMG)}
         />
         <span className={`badge-root absolute top-4 left-4 ${isApp ? '' : 'bg-emerald-600'}`}>
-          {isApp ? 'Application mobile' : 'Site / Plateforme'}
+          {isApp ? t('resources.typeApp') : t('resources.typeSite')}
         </span>
       </div>
       <div className="p-6 flex flex-col flex-1">
@@ -38,7 +40,7 @@ export default function ResourceCard({ resource, onRemove, removable = false }) 
           {removable && onRemove && (
             <button
               onClick={handleRemove}
-              aria-label="Supprimer la ressource"
+              aria-label={t('ui.deleteResource')}
               className="h-8 w-8 flex-shrink-0 bg-red-50 dark:bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
             >
               <FiTrash2 className="w-3.5 h-3.5" />
@@ -59,7 +61,7 @@ export default function ResourceCard({ resource, onRemove, removable = false }) 
             rel="noreferrer"
             className="mt-auto pt-5 inline-flex items-center justify-center gap-2.5 text-sm font-semibold text-white bg-primary px-5 py-2.5 shadow-btn hover:bg-primary-dark hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300"
           >
-            Visiter la plateforme <FiExternalLink className="w-4 h-4" />
+            {t('ui.visitPlatform')} <FiExternalLink className="w-4 h-4" />
           </a>
         )}
       </div>

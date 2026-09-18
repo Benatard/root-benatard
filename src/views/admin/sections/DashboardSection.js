@@ -6,6 +6,7 @@ import useResources from '../../../hooks/useResources';
 import useMessages from '../../../hooks/useMessages';
 import { skillsAPI, projectsAPI, FORGE_CONFIGURED } from '../../../service/api';
 import config from '../../../config/config';
+import { useLang } from '../../../i18n/LanguageContext';
 
 export default function DashboardSection({ onNavigate }) {
   const { data: skills } = useResource(skillsAPI.get);
@@ -13,22 +14,23 @@ export default function DashboardSection({ onNavigate }) {
   const { videos } = useVideos();
   const { resources } = useResources();
   const { messages } = useMessages();
+  const { t } = useLang();
 
   const cards = [
-    { key: 'projects', label: 'Projets', value: Array.isArray(projects) ? projects.length : 0, icon: FiFolder },
-    { key: 'skills', label: 'Catégories de compétences', value: skills?.categories?.length || 0, icon: FiCode },
-    { key: 'videos', label: 'Vidéos', value: videos.length, icon: FiPlayCircle },
-    { key: 'resources', label: 'Ressources', value: resources.length, icon: FiLink },
-    { key: 'messages', label: 'Messages', value: messages.length, icon: FiMail },
+    { key: 'projects', label: t('admin.tabs.projects'), value: Array.isArray(projects) ? projects.length : 0, icon: FiFolder },
+    { key: 'skills', label: t('admin.dashboard.categorySkills'), value: skills?.categories?.length || 0, icon: FiCode },
+    { key: 'videos', label: t('admin.dashboard.videos'), value: videos.length, icon: FiPlayCircle },
+    { key: 'resources', label: t('admin.dashboard.resources'), value: resources.length, icon: FiLink },
+    { key: 'messages', label: t('admin.dashboard.messages'), value: messages.length, icon: FiMail },
   ];
   const unread = messages.filter((m) => !m.read).length;
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-black dark:text-white">Tableau de bord</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-black dark:text-white">{t('admin.dashboard.title')}</h1>
         <p className="mt-2 text-sm text-body dark:text-body-dark">
-          Vue d'ensemble de votre contenu et gestion de votre espace.
+          {t('admin.dashboard.sub')}
         </p>
       </div>
 
@@ -36,8 +38,8 @@ export default function DashboardSection({ onNavigate }) {
         <div className="flex items-start gap-3 bg-emerald-500/10 border border-emerald-500/30 px-5 py-4">
           <FiCheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-body dark:text-body-dark leading-relaxed">
-            <span className="font-semibold text-dark dark:text-white">API connectée :</span> les données sont
-            lues et écrites sur Forge ({config.FORGE.BASE_URL}). Connecté en tant que{' '}
+            <span className="font-semibold text-dark dark:text-white">{t('admin.dashboard.apiConnected')}</span>{' '}
+            {t('admin.dashboard.apiConnectedTail', { url: config.FORGE.BASE_URL })}
             <span className="font-semibold text-dark dark:text-white">{config.ADMIN_EMAIL || 'admin'}</span>.
           </p>
         </div>
@@ -45,11 +47,11 @@ export default function DashboardSection({ onNavigate }) {
         <div className="flex items-start gap-3 bg-primary/10 border border-primary/20 px-5 py-4">
           <FiCloudOff className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
           <p className="text-sm text-body dark:text-body-dark leading-relaxed">
-            <span className="font-semibold text-dark dark:text-white">Mode local :</span> la connexion Forge n'est
-            pas configurée. Renseigne <code className="font-mono text-xs bg-gray2 dark:bg-[#2C303B] px-1.5 py-0.5">
-            REACT_APP_FORGE_PROJECT_KEY</code> et <code className="font-mono text-xs bg-gray2 dark:bg-[#2C303B] px-1.5 py-0.5">
-            REACT_APP_FORGE_API_KEY</code> dans <code className="font-mono text-xs bg-gray2 dark:bg-[#2C303B] px-1.5 py-0.5">.env</code>,
-            puis redémarre le serveur. Les modifications restent visibles sur le site en attendant.
+            <span className="font-semibold text-dark dark:text-white">{t('admin.dashboard.localMode')}</span>{' '}
+            {t('admin.dashboard.localModeTail')} <code className="font-mono text-xs bg-gray2 dark:bg-[#2C303B] px-1.5 py-0.5">
+            REACT_APP_FORGE_PROJECT_KEY</code> {t('admin.dashboard.localModeAnd')} <code className="font-mono text-xs bg-gray2 dark:bg-[#2C303B] px-1.5 py-0.5">
+            REACT_APP_FORGE_API_KEY</code> {t('admin.dashboard.localModeIn')} <code className="font-mono text-xs bg-gray2 dark:bg-[#2C303B] px-1.5 py-0.5">.env</code>
+            {t('admin.dashboard.localModeEnd')}
           </p>
         </div>
       )}
@@ -57,8 +59,7 @@ export default function DashboardSection({ onNavigate }) {
       <div className="flex items-start gap-3 bg-emerald-500/10 border border-emerald-500/30 px-5 py-4">
         <FiInfo className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
         <p className="text-sm text-body dark:text-body-dark leading-relaxed">
-          Toutes les données affichées sur le site proviennent directement de l'API Forge
-          ({config.FORGE.BASE_URL}). Aucune copie locale n'est utilisée.
+          {t('admin.dashboard.forgeInfo', { url: config.FORGE.BASE_URL })}
         </p>
       </div>
 
@@ -87,9 +88,11 @@ export default function DashboardSection({ onNavigate }) {
         >
           <span className="flex items-center gap-3 text-sm font-semibold text-dark dark:text-white">
             <FiMail className="w-4 h-4 text-primary" />
-            {unread} message{unread > 1 ? 's' : ''} non lu{unread > 1 ? 's' : ''}
+            {unread > 1
+              ? t('admin.dashboard.unreadPlural', { count: unread })
+              : t('admin.dashboard.unread', { count: unread })}
           </span>
-          <span className="text-xs font-semibold text-primary">Voir →</span>
+          <span className="text-xs font-semibold text-primary">{t('admin.dashboard.see')}</span>
         </button>
       )}
     </div>

@@ -16,22 +16,24 @@ import LMSSection from './sections/LMSSection';
 import GallerySection from './sections/GallerySection';
 import ResourcesSection from './sections/ResourcesSection';
 import MessagesSection from './sections/MessagesSection';
+import { useLang } from '../../i18n/LanguageContext';
 
 const TABS = [
-  { key: 'dashboard', label: 'Tableau de bord', icon: FiGrid },
-  { key: 'profile', label: 'Profil', icon: FiUser },
-  { key: 'skills', label: 'Compétences', icon: FiCode },
-  { key: 'projects', label: 'Projets', icon: FiFolder },
-  { key: 'experience', label: 'Expérience', icon: FiBriefcase },
-  { key: 'videos', label: 'Vidéos', icon: FiPlayCircle },
-  { key: 'lms', label: 'Formation', icon: FiBookOpen },
-  { key: 'gallery', label: 'Galerie', icon: FiImage },
-  { key: 'resources', label: 'Ressources', icon: FiLink },
-  { key: 'messages', label: 'Messages', icon: FiMail },
+  { key: 'dashboard', icon: FiGrid },
+  { key: 'profile', icon: FiUser },
+  { key: 'skills', icon: FiCode },
+  { key: 'projects', icon: FiFolder },
+  { key: 'experience', icon: FiBriefcase },
+  { key: 'videos', icon: FiPlayCircle },
+  { key: 'lms', icon: FiBookOpen },
+  { key: 'gallery', icon: FiImage },
+  { key: 'resources', icon: FiLink },
+  { key: 'messages', icon: FiMail },
 ];
 
 export default function AdminPage() {
   const { authed, login, logout, loading, error, checking } = useAuth();
+  const { t } = useLang();
   const [tab, setTab] = useState('dashboard');
 
   if (!authed) return <AdminLogin onLogin={login} loading={loading || checking} error={error} />;
@@ -69,12 +71,12 @@ export default function AdminPage() {
             <FiShield className="w-5 h-5 text-primary" />
           </span>
           <div>
-            <p className="text-base font-extrabold text-black dark:text-white leading-none">Dashboard</p>
-            <p className="mt-1 text-[11px] font-semibold text-body dark:text-body-dark">Gestion du site</p>
+            <p className="text-base font-extrabold text-black dark:text-white leading-none">{t('admin.title')}</p>
+            <p className="mt-1 text-[11px] font-semibold text-body dark:text-body-dark">{t('admin.subtitle')}</p>
           </div>
         </div>
         <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto no-scrollbar">
-          {TABS.map(({ key, label, icon: Icon }) => (
+          {TABS.map(({ key, icon: Icon }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
@@ -84,7 +86,7 @@ export default function AdminPage() {
                   : 'text-body dark:text-body-dark hover:text-primary hover:bg-gray2 dark:hover:bg-[#2C303B] border-l-2 border-transparent'
               }`}
             >
-              <Icon className="w-4 h-4" /> {label}
+              <Icon className="w-4 h-4" /> {t(`admin.tabs.${key}`)}
             </button>
           ))}
         </nav>
@@ -93,13 +95,13 @@ export default function AdminPage() {
             to="/"
             className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-sm font-semibold text-white bg-primary hover:bg-primary-dark transition-colors"
           >
-            <FiExternalLink className="w-4 h-4" /> Voir le site
+            <FiExternalLink className="w-4 h-4" /> {t('admin.seeSite')}
           </Link>
           <button
             onClick={logout}
             className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-sm font-semibold text-red-500 bg-red-50 dark:bg-red-500/10 hover:bg-red-500 hover:text-white transition-colors"
           >
-            <FiLogOut className="w-4 h-4" /> Déconnexion
+            <FiLogOut className="w-4 h-4" /> {t('admin.logout')}
           </button>
         </div>
       </aside>
@@ -108,27 +110,27 @@ export default function AdminPage() {
         <div className="lg:hidden sticky top-0 z-20 bg-white/95 dark:bg-gray-dark/95 backdrop-blur border-b border-stroke/70 dark:border-[#2C303B]">
           <div className="flex items-center justify-between px-4 h-16 border-b border-stroke/70 dark:border-[#2C303B]">
             <span className="flex items-center gap-2.5 text-base font-extrabold text-black dark:text-white">
-              <FiShield className="w-4 h-4 text-primary" /> Dashboard
+              <FiShield className="w-4 h-4 text-primary" /> {t('admin.title')}
             </span>
             <div className="flex items-center gap-2">
               <Link
                 to="/"
                 className="h-9 w-9 bg-primary text-white flex items-center justify-center"
-                aria-label="Voir le site"
+                aria-label={t('admin.seeSite')}
               >
                 <FiExternalLink className="w-4 h-4" />
               </Link>
               <button
                 onClick={logout}
                 className="h-9 w-9 bg-red-50 dark:bg-red-500/10 text-red-500 flex items-center justify-center"
-                aria-label="Déconnexion"
+                aria-label={t('admin.logout')}
               >
                 <FiLogOut className="w-4 h-4" />
               </button>
             </div>
           </div>
           <div className="px-2 py-2.5 flex gap-1.5 overflow-x-auto no-scrollbar">
-            {TABS.map(({ key, label, icon: Icon }) => (
+            {TABS.map(({ key, icon: Icon }) => (
               <button
                 key={key}
                 onClick={() => setTab(key)}
@@ -138,7 +140,7 @@ export default function AdminPage() {
                     : 'bg-gray2 dark:bg-[#2C303B] text-body dark:text-body-dark'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" /> {label}
+                <Icon className="w-3.5 h-3.5" /> {t(`admin.tabs.${key}`)}
               </button>
             ))}
           </div>

@@ -7,6 +7,7 @@ import Loading from '../../../components/ui/Loading';
 import ErrorBanner from '../../../components/ui/ErrorBanner';
 import AdminListEditor from '../../../components/admin/AdminListEditor';
 import { toast } from '../../../service/swal';
+import { useLang } from '../../../i18n/LanguageContext';
 
 function Field({ label, value, onChange, type = 'text', full, textarea, placeholder }) {
   return (
@@ -35,6 +36,7 @@ function Field({ label, value, onChange, type = 'text', full, textarea, placehol
 export default function ProfileSection() {
   const { data: profile, loading, error } = useResource(profileAPI.get);
   const { refresh } = useProfile();
+  const { t } = useLang();
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
 
@@ -52,9 +54,9 @@ export default function ProfileSection() {
     try {
       await profileAPI.update(current);
       await refresh();
-      toast('success', 'Profil enregistré');
+      toast('success', t('admin.profile.saved'));
     } catch {
-      toast('error', "Échec de l'enregistrement : API inaccessible");
+      toast('error', t('admin.saveError'));
     } finally {
       setSaving(false);
     }
@@ -63,28 +65,28 @@ export default function ProfileSection() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-black dark:text-white">Profil</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-black dark:text-white">{t('admin.profile.title')}</h1>
         <p className="mt-2 text-sm text-body dark:text-body-dark">
-          Informations personnelles affichées sur tout le site.
+          {t('admin.profile.sub')}
         </p>
       </div>
 
       {loading && <Loading variant="form" />}
-      {error && <ErrorBanner message="API inaccessible : impossible de charger ou d'enregistrer le profil." />}
+      {error && <ErrorBanner message={t('admin.profile.error')} />}
 
       {!loading && !error && (
         <>
           <div className="card-root p-6 md:p-8">
-            <h2 className="text-lg font-bold text-black dark:text-white">Identité</h2>
+            <h2 className="text-lg font-bold text-black dark:text-white">{t('admin.profile.identity')}</h2>
             <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Nom complet" value={current.name || ''} onChange={(v) => update({ name: v })} />
-              <Field label="Rôle" value={current.role || ''} onChange={(v) => update({ role: v })} />
-              <Field label="Niveau" value={current.level || ''} onChange={(v) => update({ level: v })} />
-              <Field label="Disponibilité" value={current.availability || ''} onChange={(v) => update({ availability: v })} />
-              <Field label="Titre complet (bandeau)" full value={current.title || ''} onChange={(v) => update({ title: v })} />
-              <Field label="Slogan (tagline)" full value={current.tagline || ''} onChange={(v) => update({ tagline: v })} />
+              <Field label={t('admin.identity.name')} value={current.name || ''} onChange={(v) => update({ name: v })} />
+              <Field label={t('admin.identity.role')} value={current.role || ''} onChange={(v) => update({ role: v })} />
+              <Field label={t('admin.identity.level')} value={current.level || ''} onChange={(v) => update({ level: v })} />
+              <Field label={t('admin.identity.availability')} value={current.availability || ''} onChange={(v) => update({ availability: v })} />
+              <Field label={t('admin.identity.titleFull')} full value={current.title || ''} onChange={(v) => update({ title: v })} />
+              <Field label={t('admin.identity.tagline')} full value={current.tagline || ''} onChange={(v) => update({ tagline: v })} />
               <Field
-                label="Biographie"
+                label={t('admin.identity.bio')}
                 full
                 textarea
                 value={current.bio || ''}
@@ -94,24 +96,24 @@ export default function ProfileSection() {
           </div>
 
           <div className="card-root p-6 md:p-8">
-            <h2 className="text-lg font-bold text-black dark:text-white">Photo & contacts</h2>
+            <h2 className="text-lg font-bold text-black dark:text-white">{t('admin.profile.photoContact')}</h2>
             <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="label-root mb-2">Photo de profil</label>
+                <label className="label-root mb-2">{t('admin.profile.profilePhoto')}</label>
                 <input
                   type="url"
                   value={current.photo || ''}
                   onChange={(e) => update({ photo: e.target.value })}
                   className="input-root"
-                  placeholder="https://.../avatar.png (ou /images/avatar.svg)"
+                  placeholder={t('admin.profile.photoPlaceholder')}
                 />
                 {current.photo && (
                   <div className="mt-4">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-body dark:text-body-dark mb-2.5">Aperçu</p>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-body dark:text-body-dark mb-2.5">{t('common.preview')}</p>
                     <div className="h-32 w-32 overflow-hidden bg-gray2 dark:bg-[#2C303B]">
                       <img
                         src={current.photo}
-                        alt="Aperçu"
+                        alt={t('common.preview')}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           e.target.onerror = null;
@@ -122,30 +124,30 @@ export default function ProfileSection() {
                   </div>
                 )}
               </div>
-              <Field label="Email" type="email" value={current.email || ''} onChange={(v) => update({ email: v })} />
-              <Field label="Téléphone" value={current.phone || ''} onChange={(v) => update({ phone: v })} />
-              <Field label="Localisation" value={current.location || ''} onChange={(v) => update({ location: v })} />
-              <Field label="Site web" type="url" value={current.website || ''} onChange={(v) => update({ website: v })} />
+              <Field label={t('admin.contact.email')} type="email" value={current.email || ''} onChange={(v) => update({ email: v })} />
+              <Field label={t('admin.contact.phone')} value={current.phone || ''} onChange={(v) => update({ phone: v })} />
+              <Field label={t('admin.contact.location')} value={current.location || ''} onChange={(v) => update({ location: v })} />
+              <Field label={t('admin.contact.website')} type="url" value={current.website || ''} onChange={(v) => update({ website: v })} />
               <Field
-                label="Lien CV (résumé)"
+                label={t('admin.profile.cvLink')}
                 type="url"
                 full
-                placeholder="/cv.pdf ou https://.../cv.pdf"
+                placeholder={t('admin.profile.cvPlaceholder')}
                 value={current.resumeUrl || ''}
                 onChange={(v) => update({ resumeUrl: v })}
               />
               <p className="sm:col-span-2 -mt-2 text-xs text-body dark:text-body-dark">
-                Astuce : pour un CV hébergé sur ce site, placez le fichier dans le dossier
+                {t('admin.profile.cvHint')}
                 <code className="mx-1 font-mono bg-gray2 dark:bg-[#2C303B] px-1.5 py-0.5">public/cv.pdf</code>
-                puis mettez
+                {t('admin.profile.cvHintThen')}
                 <code className="mx-1 font-mono bg-gray2 dark:bg-[#2C303B] px-1.5 py-0.5">/cv.pdf</code>
-                ici. Les boutons « Télécharger mon CV » s'afficheront dès que le champ est rempli.
+                {t('admin.profile.cvHintHere')}
               </p>
             </div>
           </div>
 
           <div className="card-root p-6 md:p-8">
-            <h2 className="text-lg font-bold text-black dark:text-white">Réseaux sociaux</h2>
+            <h2 className="text-lg font-bold text-black dark:text-white">{t('admin.profile.socials')}</h2>
             <div className="mt-5">
               <AdminListEditor
                 items={current.socials || []}
@@ -153,17 +155,17 @@ export default function ProfileSection() {
                 titleKey="label"
                 newItem={{ key: '', label: '', url: '' }}
                 fields={[
-                  { key: 'label', label: 'Nom du réseau', placeholder: 'GitHub' },
-                  { key: 'url', label: 'Lien', type: 'url' },
-                  { key: 'key', label: 'Icône (github, linkedin, youtube, twitter)', placeholder: 'github' },
+                  { key: 'label', label: t('admin.social.networkLabel'), placeholder: 'GitHub' },
+                  { key: 'url', label: t('admin.social.link'), type: 'url' },
+                  { key: 'key', label: t('admin.social.icon'), placeholder: 'github' },
                 ]}
-                addLabel="Ajouter un réseau"
+                addLabel={t('admin.social.add')}
               />
             </div>
           </div>
 
           <div className="card-root p-6 md:p-8">
-            <h2 className="text-lg font-bold text-black dark:text-white">Statistiques</h2>
+            <h2 className="text-lg font-bold text-black dark:text-white">{t('admin.profile.stats')}</h2>
             <div className="mt-5">
               <AdminListEditor
                 items={current.stats || []}
@@ -171,16 +173,16 @@ export default function ProfileSection() {
                 titleKey="label"
                 newItem={{ number: '', label: '' }}
                 fields={[
-                  { key: 'number', label: 'Valeur', placeholder: '10+' },
-                  { key: 'label', label: 'Libellé', placeholder: 'PROJETS RÉALISÉS' },
+                  { key: 'number', label: t('admin.stats.value'), placeholder: '10+' },
+                  { key: 'label', label: t('admin.stats.label'), placeholder: 'PROJETS RÉALISÉS' },
                 ]}
-                addLabel="Ajouter une statistique"
+                addLabel={t('admin.stats.add')}
               />
             </div>
           </div>
 
           <button onClick={save} disabled={saving} className="btn-primary-root w-full disabled:opacity-60">
-            <FiSave className="w-4 h-4" /> {saving ? 'Enregistrement...' : 'Enregistrer le profil'}
+            <FiSave className="w-4 h-4" /> {saving ? t('common.saving') : t('admin.profile.save')}
           </button>
         </>
       )}

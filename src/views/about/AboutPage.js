@@ -10,10 +10,12 @@ import ErrorBanner from '../../components/ui/ErrorBanner';
 import useResource from '../../hooks/useResource';
 import { experienceAPI } from '../../service/api';
 import { resolveUploadUrl } from '../../config/config';
+import { useLang } from '../../i18n/LanguageContext';
 
 export default function AboutPage() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const { data: experience, loading: experienceLoading, error: experienceError } = useResource(experienceAPI.get);
+  const { t } = useLang();
 
   const experiences = experience?.experiences || [];
   const education = experience?.education || [];
@@ -22,7 +24,7 @@ export default function AboutPage() {
   if (profileLoading) {
     return (
       <>
-        <PageMeta title="À propos" />
+        <PageMeta title={t('about.metaTitle')} />
         <div className="py-8"><Loading variant="hero" /></div>
       </>
     );
@@ -31,9 +33,9 @@ export default function AboutPage() {
   if (profileError || !profile) {
     return (
       <>
-        <PageMeta title="À propos" />
+        <PageMeta title={t('about.metaTitle')} />
         <div className="max-w-5xl mx-auto px-5 py-16 text-center">
-          <ErrorBanner message="Impossible de charger le profil. L'API est peut-être inaccessible." />
+          <ErrorBanner message={t('common.profileLoadError')} />
         </div>
       </>
     );
@@ -41,7 +43,7 @@ export default function AboutPage() {
 
   return (
     <div>
-      <PageMeta title="À propos" description={profile ? `${profile.title} — parcours, expérience et formation.` : undefined} />
+      <PageMeta title={t('about.metaTitle')} description={profile ? t('about.metaDesc', { title: profile.title }) : undefined} />
 
       <section className="relative pl-5 overflow-hidden bg-white dark:bg-gray-dark">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(74,108,247,0.12)_1px,transparent_0)] bg-[size:26px_26px] [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_72%)] pointer-events-none" />
@@ -50,11 +52,11 @@ export default function AboutPage() {
           <Reveal className="max-w-3xl">
             <span className="eyebrow-root">
               <span className="h-1.5 w-1.5 bg-primary inline-block" />
-              À propos de moi
+              {t('about.eyebrow')}
             </span>
             <h1 className="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-black dark:text-white">
-              De la curiosité au{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">métier de développeur</span>
+              {t('about.title1')}{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">{t('about.titleHighlight')}</span>
             </h1>
             <p className="mt-6 text-base md:text-lg text-body dark:text-body-dark leading-relaxed">
               {profile.bio}
@@ -66,14 +68,14 @@ export default function AboutPage() {
       <section className="bg-transparent">
         <div className="py-16 md:py-19">
           <SectionTitle
-            eyebrow="Mon parcours"
-            title="Expérience professionnelle"
-            sub="Chaque étape m'a permis de monter en compétence, du premier projet au développement d'ERP."
+            eyebrow={t('about.journey')}
+            title={t('about.experience')}
+            sub={t('about.experienceSub')}
           />
           {experienceLoading ? (
             <Loading variant="list" />
           ) : experienceError ? (
-            <ErrorBanner message="Impossible de charger le parcours professionnel." />
+            <ErrorBanner message={t('about.expError')} />
           ) : (
             <div className="space-y-6">
               {experiences.map(({ role, company, period, desc }, index) => (
@@ -103,14 +105,14 @@ export default function AboutPage() {
       <section className="bg-white dark:bg-gray-dark">
         <div className="py-16 md:py-19">
           <SectionTitle
-            eyebrow="Mes études"
-            title="Formation"
-            sub="Une base solide en informatique complétée par des certifications pratiques."
+            eyebrow={t('about.education')}
+            title={t('about.educationTitle')}
+            sub={t('about.educationSub')}
           />
           {experienceLoading ? (
             <Loading variant="cardGrid2" />
           ) : experienceError ? (
-            <ErrorBanner message="Impossible de charger la formation." />
+            <ErrorBanner message={t('about.eduError')} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {education.map(({ degree, school, period, desc }, index) => (
@@ -143,20 +145,18 @@ export default function AboutPage() {
                 <div className="h-12 w-12 bg-primary/10 flex items-center justify-center">
                   <FiEye className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="mt-5 text-xl font-bold text-black dark:text-white">Ma vision</h3>
+                <h3 className="mt-5 text-xl font-bold text-black dark:text-white">{t('about.vision')}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-body dark:text-body-dark">
-                  Contribuer à la transformation digitale de la région en concevant des applications web
-                  accessibles, performantes et utiles au plus grand nombre.
+                  {t('about.visionText')}
                 </p>
               </div>
               <div className="card-root p-8 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1.5">
                 <div className="h-12 w-12 bg-primary/10 flex items-center justify-center">
                   <FiTarget className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="mt-5 text-xl font-bold text-black dark:text-white">Ma mission</h3>
+                <h3 className="mt-5 text-xl font-bold text-black dark:text-white">{t('about.mission')}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-body dark:text-body-dark">
-                  Livrer un code de qualité, apprendre chaque jour et partager mes connaissances à travers
-                  des tutoriels vidéo pour faire grandir la communauté des développeurs.
+                  {t('about.missionText')}
                 </p>
               </div>
             </div>
@@ -166,10 +166,10 @@ export default function AboutPage() {
               <a
                 href={resolveUploadUrl(profile.resumeUrl)}
                 download
-                aria-label={`Télécharger le CV de ${profile.name}`}
+                aria-label={t('aside.downloadCvOf', { name: profile.name })}
                 className="btn-outline-root"
               >
-                <FiDownload className="w-4 h-4" /> Télécharger mon CV (PDF)
+                <FiDownload className="w-4 h-4" /> {t('about.downloadCv')}
               </a>
             </div>
           )}
@@ -179,14 +179,14 @@ export default function AboutPage() {
       <section className="bg-transparent">
         <div className="py-16 md:py-19">
           <SectionTitle
-            eyebrow="Ce qui me guide"
-            title="Mes valeurs"
-            sub="Les principes qui orientent mon travail au quotidien."
+            eyebrow={t('about.guide')}
+            title={t('about.values')}
+            sub={t('about.valuesSub')}
           />
           {experienceLoading ? (
             <Loading variant="cards" count={4} />
           ) : experienceError ? (
-            <ErrorBanner message="Impossible de charger les valeurs." />
+            <ErrorBanner message={t('about.valuesError')} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {values.map(({ title, desc }, index) => (
@@ -210,14 +210,14 @@ export default function AboutPage() {
               <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none" />
               <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-black/10 blur-2xl pointer-events-none" />
               <h2 className="relative text-2xl md:text-3xl font-bold tracking-tight text-white">
-                Envie de collaborer sur un projet ?
+                {t('about.collaborate')}
               </h2>
               <div className="relative mt-8 flex flex-wrap justify-center gap-4">
                 <Link to="/contact" className="btn-white-root">
-                  Travaillons ensemble <FiArrowRight className="w-4 h-4" />
+                  {t('about.workTogether')} <FiArrowRight className="w-4 h-4" />
                 </Link>
                 <Link to="/projets" className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 text-sm font-semibold bg-black/25 border border-white/25 text-white hover:bg-black/40 transition-colors duration-300">
-                  <FiAward className="w-4 h-4" /> Mes projets
+                  <FiAward className="w-4 h-4" /> {t('about.myProjects')}
                 </Link>
               </div>
             </div>
