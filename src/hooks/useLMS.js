@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { lmsAPI, videosAPI } from '../service/api';
+import { useLang } from '../i18n/LanguageContext';
 
 const SEED_FLAG = 'lms_seeded_v1';
 
@@ -23,9 +24,12 @@ export default function useLMS() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [source, setSource] = useState('loading');
+  const hasData = useRef(false);
+  const { dataVersion } = useLang();
 
   useEffect(() => {
     let mounted = true;
+    if (!hasData.current) setSource('refreshing');
     const load = async () => {
       try {
         let mods = (await lmsAPI.get())?.modules;
@@ -54,13 +58,16 @@ export default function useLMS() {
         }
 
         if (!mounted) return;
+        hasData.current = true;
         setModules(ensureIds(mods));
         setSource('api');
       } catch (err) {
         if (!mounted) return;
-        setModules([]);
-        setSource('error');
-        setError(err);
+        if (!hasData.current) {
+          setModules([]);
+          setSource('error');
+          setError(err);
+        }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -69,7 +76,7 @@ export default function useLMS() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [dataVersion]);
 
   const save = useCallback(async (mods) => {
     try {

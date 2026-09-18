@@ -1,26 +1,33 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { videosAPI } from '../service/api';
+import { useLang } from '../i18n/LanguageContext';
 
 export default function useVideos() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [source, setSource] = useState('loading');
+  const hasData = useRef(false);
+  const { dataVersion } = useLang();
 
   useEffect(() => {
     let mounted = true;
+    if (!hasData.current) setSource('refreshing');
     videosAPI
       .get()
       .then((result) => {
         if (!mounted) return;
+        hasData.current = true;
         setVideos(Array.isArray(result) ? result : []);
         setSource('api');
       })
       .catch(() => {
         if (!mounted) return;
-        setVideos([]);
-        setSource('error');
-        setError(new Error('API inaccessible'));
+        if (!hasData.current) {
+          setVideos([]);
+          setSource('error');
+          setError(new Error('API inaccessible'));
+        }
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -28,7 +35,7 @@ export default function useVideos() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [dataVersion]);
 
   const addVideo = useCallback(async (payload) => {
     try {

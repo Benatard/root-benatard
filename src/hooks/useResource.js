@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useLang } from '../i18n/LanguageContext';
 
 export default function useResource(apiCall, options = {}) {
   const { dependencies = [] } = options;
@@ -6,24 +7,34 @@ export default function useResource(apiCall, options = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [source, setSource] = useState('loading');
+  const hasData = useRef(false);
+  const { dataVersion } = useLang();
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setError(null);
-    setSource('loading');
+
+    if (hasData.current) {
+      setSource('refreshing');
+    } else {
+      setLoading(true);
+      setError(null);
+      setSource('loading');
+    }
 
     const load = async () => {
       try {
         const result = await apiCall();
         if (!mounted) return;
+        hasData.current = true;
         setData(result ?? null);
         setSource('api');
       } catch (err) {
         if (!mounted) return;
-        setData(null);
-        setSource('error');
-        setError(err);
+        if (!hasData.current) {
+          setData(null);
+          setSource('error');
+          setError(err);
+        }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -33,7 +44,7 @@ export default function useResource(apiCall, options = {}) {
     return () => {
       mounted = false;
     };
-  }, dependencies);
+  }, dependencies.concat([dataVersion]));
 
   return { data, setData, loading, error, source };
 }

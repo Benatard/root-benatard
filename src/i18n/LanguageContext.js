@@ -6,6 +6,7 @@ const LanguageContext = createContext(null);
 
 export const LanguageProvider = ({ children }) => {
   const [lang, setLangState] = useState(getLang);
+  const [dataVersion, setDataVersion] = useState(0);
 
   useEffect(() => {
     setLangCode(lang);
@@ -17,15 +18,22 @@ export const LanguageProvider = ({ children }) => {
     }
   }, [lang]);
 
-  const setLang = useCallback((code) => {
-    if (LANGS.some((l) => l.code === code)) setLangState(code);
-  }, []);
+  const setLang = useCallback(
+    (code) => {
+      if (!LANGS.some((l) => l.code === code)) return;
+      if (code !== lang) {
+        setLangState(code);
+        setDataVersion((v) => v + 1);
+      }
+    },
+    [lang]
+  );
 
   const t = useCallback((key, vars) => translate(key, vars), []);
 
   const value = useMemo(
-    () => ({ lang, setLang, t, LANGS, translations }),
-    [lang, setLang, t]
+    () => ({ lang, setLang, t, dataVersion, LANGS, translations }),
+    [lang, setLang, t, dataVersion]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
