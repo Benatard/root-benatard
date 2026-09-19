@@ -6,6 +6,7 @@ import PageMeta from '../../components/PageMeta';
 import Reveal from '../../components/ui/Reveal';
 import Loading from '../../components/ui/Loading';
 import ErrorBanner from '../../components/ui/ErrorBanner';
+import CodeBlock from '../../components/ui/CodeBlock';
 import useLMS from '../../hooks/useLMS';
 import { useLang } from '../../i18n/LanguageContext';
 
@@ -245,6 +246,49 @@ export default function VideosPage() {
                           </div>
                         </div>
                       )}
+
+                      {activeLesson.sections && activeLesson.sections.length > 0 ? (
+                        <div className="card-root mt-6 p-6 md:p-8">
+                          <p className="text-xs font-semibold uppercase tracking-widest text-body dark:text-body-dark">
+                            {t('videos.lessonContent')}
+                          </p>
+                          <div className="mt-4 space-y-6">
+                            {activeLesson.sections.map((section) =>
+                              section.kind === 'text' ? (
+                                <div
+                                  key={section.id}
+                                  className="space-y-4 text-[15px] text-dark dark:text-body-dark"
+                                >
+                                  {renderText(section.text)}
+                                </div>
+                              ) : (
+                                <div key={section.id}>
+                                  {section.summary && (
+                                    <div className="mb-4 space-y-4 text-[15px] text-dark dark:text-body-dark">
+                                      {renderText(section.summary)}
+                                    </div>
+                                  )}
+                                  <CodeBlock code={section.code} language={section.language} />
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      ) : activeLesson.code ? (
+                        <div className="card-root mt-6 p-6 md:p-8">
+                          <p className="text-xs font-semibold uppercase tracking-widest text-body dark:text-body-dark">
+                            {t('videos.codeSection')}
+                          </p>
+                          {activeLesson.codeSummary && (
+                            <div className="mt-4 space-y-4 text-[15px] text-dark dark:text-body-dark">
+                              {renderText(activeLesson.codeSummary)}
+                            </div>
+                          )}
+                          <div className="mt-4">
+                            <CodeBlock code={activeLesson.code} language={activeLesson.codeLanguage} />
+                          </div>
+                        </div>
+                      ) : null}
                     </Reveal>
                   ) : (
                     <div className="card-root p-12 text-center">

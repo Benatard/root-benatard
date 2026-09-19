@@ -9,7 +9,10 @@ const uid = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}
 const stripIds = (modules) =>
   modules.map(({ id, ...module }) => ({
     ...module,
-    lessons: (module.lessons || []).map(({ id: lessonId, ...lesson }) => lesson),
+    lessons: (module.lessons || []).map(({ id: lessonId, ...lesson }) => ({
+      ...lesson,
+      sections: (lesson.sections || []).map(({ id: sectionId, ...section }) => section),
+    })),
   }));
 
 const ensureIds = (modules) =>
