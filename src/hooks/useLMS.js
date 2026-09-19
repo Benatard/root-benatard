@@ -6,24 +6,42 @@ const SEED_FLAG = 'lms_seeded_v1';
 
 const uid = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-const stripIds = (modules) =>
-  modules.map(({ id, ...module }) => ({
-    ...module,
-    lessons: (module.lessons || []).map(({ id: lessonId, ...lesson }) => ({
-      ...lesson,
-      sections: (lesson.sections || []).map(({ id: sectionId, ...section }) => section),
+const ensureFormationIds = (formations) =>
+  (formations || []).map((f, i) => ({
+    ...f,
+    id: f.id || `local-f-${i}-${uid()}`,
+    modules: (f.modules || []).map((m, j) => ({
+      ...m,
+      id: m.id || `local-m-${i}-${j}-${uid()}`,
+      lessons: (m.lessons || []).map((l, k) => ({
+        ...l,
+        id: l.id || `local-l-${i}-${j}-${k}-${uid()}`,
+      })),
     })),
   }));
 
-const ensureIds = (modules) =>
-  modules.map((m, i) => ({
-    ...m,
-    id: m.id || `local-${i}-${uid()}`,
-    lessons: (m.lessons || []).map((l, j) => ({ ...l, id: l.id || `local-l-${i}-${j}-${uid()}` })),
+const stripFormationIds = (formations) =>
+  formations.map(({ id, ...formation }) => ({
+    ...formation,
+    modules: (formation.modules || []).map(({ id: mId, ...module }) => ({
+      ...module,
+      lessons: (module.lessons || []).map(({ id: lId, ...lesson }) => ({
+        ...lesson,
+        sections: (lesson.sections || []).map(({ id: sId, ...section }) => section),
+      })),
+    })),
   }));
 
+const toFormations = (row) => {
+  if (Array.isArray(row.formations)) return row.formations;
+  if (Array.isArray(row.modules)) {
+    return [{ id: 'formation-default', title: '', description: '', modules: row.modules }];
+  }
+  return [];
+};
+
 export default function useLMS() {
-  const [modules, setModules] = useState(null);
+  const [formations, setFormations] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [source, setSource] = useState('loading');
@@ -35,39 +53,45 @@ export default function useLMS() {
     if (!hasData.current) setSource('refreshing');
     const load = async () => {
       try {
-        let mods = (await lmsAPI.get())?.modules;
-        if (!Array.isArray(mods)) mods = [];
+        let list = toFormations((await lmsAPI.get()) || {});
 
-        if (mods.length === 0 && !localStorage.getItem(SEED_FLAG)) {
+        if (list.length === 0 && !localStorage.getItem(SEED_FLAG)) {
           const legacy = await videosAPI.get().catch(() => []);
           if (Array.isArray(legacy) && legacy.length > 0) {
-            mods = [
+            list = [
               {
-                id: 'module-videotheque',
-                title: 'Vidéothèque',
-                description: 'Mes anciens tutoriels, regroupés au fil de la formation.',
-                lessons: legacy.map((video, i) => ({
-                  id: video.id || `lesson-${i}-${uid()}`,
-                  title: video.title || 'Sans titre',
-                  url: video.url || '',
-                  embedUrl: video.embedUrl || '',
-                  content: video.description || '',
-                })),
+                id: 'formation-videotheque',
+                title: '',
+                description: '',
+                modules: [
+                  {
+                    id: 'module-videotheque',
+                    title: 'Vidéothèque',
+                    description: 'Mes anciens tutoriels, regroupés au fil de la formation.',
+                    lessons: legacy.map((video, i) => ({
+                      id: video.id || `lesson-${i}-${uid()}`,
+                      title: video.title || 'Sans titre',
+                      url: video.url || '',
+                      embedUrl: video.embedUrl || '',
+                      content: video.description || '',
+                    })),
+                  },
+                ],
               },
             ];
-            await lmsAPI.save({ modules: stripIds(mods) }).catch(() => {});
+            await lmsAPI.save({ formations: stripFormationIds(list) }).catch(() => {});
           }
           localStorage.setItem(SEED_FLAG, '1');
         }
 
         if (!mounted) return;
         hasData.current = true;
-        setModules(ensureIds(mods));
+        setFormations(ensureFormationIds(list));
         setSource('api');
       } catch (err) {
         if (!mounted) return;
         if (!hasData.current) {
-          setModules([]);
+          setFormations([]);
           setSource('error');
           setError(err);
         }
@@ -81,14 +105,11 @@ export default function useLMS() {
     };
   }, [dataVersion]);
 
-  const save = useCallback(async (mods) => {
+  const save = useCallback(async (fms) => {
     try {
-      const row = await lmsAPI.save({ modules: stripIds(mods) });
-      if (row && Array.isArray(row.modules)) {
-        setModules(ensureIds(row.modules));
-      } else {
-        setModules(ensureIds(mods));
-      }
+      const row = await lmsAPI.save({ formations: stripFormationIds(fms) });
+      const saved = toFormations(row || {});
+      setFormations(ensureFormationIds(saved.length ? saved : fms));
       setSource('api');
       return { ok: true };
     } catch (err) {
@@ -96,5 +117,9 @@ export default function useLMS() {
     }
   }, []);
 
-  return { modules, setModules, loading, error, source, save };
+  const modules = Array.isArray(formations)
+    ? formations.flatMap((f) => f.modules || [])
+    : null;
+
+  return { formations, modules, setFormations, loading, error, source, save };
 }
