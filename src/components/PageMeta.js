@@ -11,14 +11,17 @@ export default function PageMeta({ title, description, type = 'website' }) {
   const fullTitle = siteName ? (title ? `${title} — ${siteName}` : `${siteName} — ${siteTitle}`) : title || '';
   const desc = description || (profile ? `${siteTitle}. ${profile.tagline}` : '');
   const pageUrl = absoluteUrl(location.pathname);
+  const logoImage = absoluteUrl('/images/logo-mark.svg');
   const ogImage = profile?.photo
     ? absoluteUrl(resolveUploadUrl(profile.photo))
-    : absoluteUrl('/images/logo-mark.svg');
+    : logoImage;
+  const ogImageAlt = profile?.photo ? `${siteName} — photo de profil` : `${siteName} — logo`;
 
   return (
     <Helmet>
       <title>{fullTitle}</title>
       <link rel="canonical" href={pageUrl} />
+      <link rel="apple-touch-icon" type="image/svg+xml" href={logoImage} />
       <meta name="description" content={desc} />
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content={siteName} />
@@ -26,10 +29,14 @@ export default function PageMeta({ title, description, type = 'website' }) {
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={desc} />
       <meta property="og:image" content={ogImage} />
+      <meta property="og:image:alt" content={ogImageAlt} />
+      <meta property="og:image" content={logoImage} />
+      <meta property="og:image:alt" content={`${siteName} — logo`} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={desc} />
       <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image:alt" content={ogImageAlt} />
     </Helmet>
   );
 }
