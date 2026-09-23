@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
-import { absoluteUrl, resolveUploadUrl } from '../config/config';
+import { absoluteUrl } from '../config/config';
 
 export default function PageMeta({ title, description, type = 'website' }) {
   const { profile } = useProfile();
@@ -12,10 +12,6 @@ export default function PageMeta({ title, description, type = 'website' }) {
   const desc = description || (profile ? `${siteTitle}. ${profile.tagline}` : '');
   const pageUrl = absoluteUrl(location.pathname);
   const logoImage = absoluteUrl('/images/logo-mark.svg');
-  const ogImage = profile?.photo
-    ? absoluteUrl(resolveUploadUrl(profile.photo))
-    : logoImage;
-  const ogImageAlt = profile?.photo ? `${siteName} — photo de profil` : `${siteName} — logo`;
 
   return (
     <Helmet>
@@ -28,15 +24,13 @@ export default function PageMeta({ title, description, type = 'website' }) {
       <meta property="og:url" content={pageUrl} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={desc} />
-      <meta property="og:image" content={ogImage} />
-      <meta property="og:image:alt" content={ogImageAlt} />
       <meta property="og:image" content={logoImage} />
       <meta property="og:image:alt" content={`${siteName} — logo`} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={desc} />
-      <meta name="twitter:image" content={ogImage} />
-      <meta name="twitter:image:alt" content={ogImageAlt} />
+      <meta name="twitter:image" content={logoImage} />
+      <meta name="twitter:image:alt" content={`${siteName} — logo`} />
     </Helmet>
   );
 }
