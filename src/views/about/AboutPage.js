@@ -5,6 +5,7 @@ import PageMeta from '../../components/PageMeta';
 import { useProfile } from '../../context/ProfileContext';
 import Reveal from '../../components/ui/Reveal';
 import SectionTitle from '../../components/ui/SectionTitle';
+import ForgeBadge from '../../components/ui/ForgeBadge';
 import Loading from '../../components/ui/Loading';
 import ErrorBanner from '../../components/ui/ErrorBanner';
 import useResource from '../../hooks/useResource';
@@ -159,6 +160,24 @@ export default function AboutPage() {
                   {t('about.missionText')}
                 </p>
               </div>
+            </div>
+          </Reveal>
+          <Reveal className="mt-6">
+            <div className="card-root p-8 flex flex-col md:flex-row md:items-center gap-6 md:gap-8">
+              <span className="w-16 h-16 flex-shrink-0 rounded-lg bg-white ring-1 ring-black/5 dark:ring-white/10 p-1 flex items-center justify-center">
+                <img src="/images/forge-mark.png" alt="Forge" className="w-full h-full object-contain" />
+              </span>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-black dark:text-white">{t('about.forgeTitle')}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-body dark:text-body-dark">
+                  {t('about.forgeText')}
+                </p>
+              </div>
+              <ForgeBadge
+                dots
+                text="forgestartup.com"
+                className="flex-shrink-0 px-6 py-3 text-sm font-semibold text-primary border border-primary/30 hover:bg-primary hover:text-white transition-colors"
+              />
             </div>
           </Reveal>
           {profile.resumeUrl && (

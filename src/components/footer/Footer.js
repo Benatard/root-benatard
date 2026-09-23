@@ -4,6 +4,7 @@ import { FiMail, FiPhone, FiMapPin, FiGithub, FiLinkedin, FiYoutube, FiTwitter, 
 import { publicRoutes } from '../../routes/routes';
 import { contactAPI } from '../../service/api';
 import { toast } from '../../service/swal';
+import ForgeBadge from '../ui/ForgeBadge';
 import { useLang } from '../../i18n/LanguageContext';
 
 const socialIcons = {
@@ -172,6 +173,9 @@ export default function Footer({ profile }) {
             </Link>
           </div>
         </div>
+        <p className="mt-5 text-center text-[15px] font-medium text-body dark:text-body-dark">
+          <ForgeBadge text={t('footer.forgeMember')} className="hover:text-primary" />
+        </p>
       </div>
     </footer>
   );

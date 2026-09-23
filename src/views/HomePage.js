@@ -9,6 +9,7 @@ import ProjectCard from '../components/ui/ProjectCard';
 import VideoCard from '../components/ui/VideoCard';
 import Slideshow from '../components/ui/Slideshow';
 import SkillBar from '../components/ui/SkillBar';
+import ForgeBadge from '../components/ui/ForgeBadge';
 import Loading from '../components/ui/Loading';
 import ErrorBanner from '../components/ui/ErrorBanner';
 import useResource from '../hooks/useResource';
@@ -99,6 +100,20 @@ export default function HomePage() {
               </Reveal>
             ))}
           </div>
+
+          <Reveal className="mt-10">
+            <div className="card-root px-6 py-5 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+<ForgeBadge
+                dots
+                text={t('home.forgeText')}
+                className="text-sm font-semibold text-dark dark:text-body-dark hover:text-primary"
+              />
+              <span className="hidden md:block h-4 w-px bg-stroke dark:bg-[#2C303B]" />
+              <a href='https://forgestartup.com' className="text-xs font-semibold text-body dark:text-body-dark">
+                forgestartup.com →
+              </a>
+            </div>
+          </Reveal>
         </div>
       </section>
 
