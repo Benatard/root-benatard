@@ -92,8 +92,8 @@ const fr = {
   'home.topSkillsSub': 'Les technologies que j\'utilise au quotidien pour livrer des applications robustes et élégantes.',
   'home.seeAllSkills': 'Voir toutes mes compétences',
   'home.realisations': 'Mes réalisations',
-  'home.recentProjects': 'Projets récents',
-  'home.recentProjectsSub': 'Un aperçu des applications web que j\'ai conçues et développées.',
+  'home.recentProjects': 'Projets à la une',
+  'home.recentProjectsSub': 'Une sélection d\'applications web que j\'ai conçues et développées.',
   'home.allProjects': 'Tous mes projets',
   'home.learnWithMe': 'Apprendre avec moi',
   'home.latestVideos': 'Derniers tutos vidéo',
@@ -395,7 +395,7 @@ const fr = {
   'admin.skills.save': 'Enregistrer les compétences',
 
   'admin.projects.title': 'Projets',
-  'admin.projects.sub': 'Cliquez sur un projet pour le modifier, ajoutez-en avec le bouton en bas, puis enregistrez tout.',
+  'admin.projects.sub': 'Cliquez sur un projet pour le modifier, utilisez les flèches pour choisir son ordre d\'affichage, puis enregistrez tout.',
   'admin.projects.error': 'API inaccessible : impossible de charger ou de synchroniser les projets.',
   'admin.projects.add': 'Ajouter un projet',
   'admin.projects.saved': 'Projets synchronisés',
@@ -559,6 +559,9 @@ const fr = {
   'admin.editor.deleteAria': 'Supprimer',
   'admin.editor.add': 'Ajouter',
   'admin.editor.tagsPlaceholder': 'Éléments séparés par des virgules',
+  'admin.editor.moveUp': 'Monter',
+  'admin.editor.moveDown': 'Descendre',
+  'admin.editor.position': 'Position',
 };
 
 const en = {
@@ -650,8 +653,8 @@ const en = {
   'home.topSkillsSub': 'The technologies I use every day to ship robust and elegant applications.',
   'home.seeAllSkills': 'See all my skills',
   'home.realisations': 'My work',
-  'home.recentProjects': 'Recent projects',
-  'home.recentProjectsSub': 'A glimpse of the web applications I designed and built.',
+  'home.recentProjects': 'Featured projects',
+  'home.recentProjectsSub': 'A selection of web applications I designed and built.',
   'home.allProjects': 'All my projects',
   'home.learnWithMe': 'Learn with me',
   'home.latestVideos': 'Latest video tutorials',
@@ -953,7 +956,7 @@ const en = {
   'admin.skills.save': 'Save skills',
 
   'admin.projects.title': 'Projects',
-  'admin.projects.sub': 'Click a project to edit it, add new ones with the button below, then save everything.',
+  'admin.projects.sub': 'Click a project to edit it, use the arrows to choose its display order, then save everything.',
   'admin.projects.error': 'API unreachable: unable to load or sync projects.',
   'admin.projects.add': 'Add a project',
   'admin.projects.saved': 'Projects synced',
@@ -1117,6 +1120,9 @@ const en = {
   'admin.editor.deleteAria': 'Delete',
   'admin.editor.add': 'Add',
   'admin.editor.tagsPlaceholder': 'Items separated by commas',
+  'admin.editor.moveUp': 'Move up',
+  'admin.editor.moveDown': 'Move down',
+  'admin.editor.position': 'Position',
 };
 
 export const translations = { fr, en };

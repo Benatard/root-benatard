@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS projects (
   stack jsonb,
   demo text,
   repo text,
+  sort_order integer NOT NULL DEFAULT 1,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );

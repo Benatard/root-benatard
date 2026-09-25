@@ -9,6 +9,21 @@ import AdminListEditor from '../../../components/admin/AdminListEditor';
 import { toast } from '../../../service/swal';
 import { useLang } from '../../../i18n/LanguageContext';
 
+const normalizeItems = (items) =>
+  (Array.isArray(items) ? items : []).map((item, index) => ({
+    ...item,
+    sortOrder: index + 1,
+  }));
+
+const moveItem = (items, index, direction) => {
+  const nextIndex = index + direction;
+  if (nextIndex < 0 || nextIndex >= items.length) return items;
+  const next = [...items];
+  const [item] = next.splice(index, 1);
+  next.splice(nextIndex, 0, item);
+  return next;
+};
+
 export default function ProjectsSection() {
   const { t } = useLang();
   const { data: projects, loading, error } = useResource(projectsAPI.get);
@@ -17,16 +32,29 @@ export default function ProjectsSection() {
   const savedRef = useRef([]);
 
   useEffect(() => {
-    const next = Array.isArray(projects) ? projects : [];
+    const next = normalizeItems(projects);
     setItems(next);
     savedRef.current = next;
   }, [projects]);
 
+  const moveProject = (index, direction) => {
+    setItems((current) => {
+      const moved = moveItem(current, index, direction);
+      return moved === current ? current : normalizeItems(moved);
+    });
+  };
+
+  const updateItems = (next) => setItems(normalizeItems(next));
+
   const save = async () => {
     setSaving(true);
     try {
-      await syncList(projectsAPI, savedRef.current, items);
-      savedRef.current = items;
+      const next = normalizeItems(items);
+      setItems(next);
+      const saved = await syncList(projectsAPI, savedRef.current, next);
+      const synced = normalizeItems(saved);
+      setItems(synced);
+      savedRef.current = synced;
       toast('success', t('admin.projects.saved'));
     } catch {
       toast('error', t('admin.saveError'));
@@ -51,7 +79,10 @@ export default function ProjectsSection() {
         <>
           <AdminListEditor
             items={items}
-            onChange={setItems}
+            onChange={updateItems}
+            reorderable
+            onReorder={moveProject}
+            addAtEnd
             titleKey="title"
             newItem={{ title: '', category: '', year: '', image: '', desc: '', stack: [], demo: '', repo: '' }}
             addLabel={t('admin.projects.add')}

@@ -70,6 +70,7 @@ Choisir l'ID **uuid** pour toutes les tables. Créer les colonnes suivantes
 | stack       | json |
 | demo        | text |
 | repo        | text |
+| sort_order  | integer |
 
 ### `videos` — lignes
 | colonne     | type |

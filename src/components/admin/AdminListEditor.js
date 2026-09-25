@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { FiPlus, FiTrash2, FiChevronDown, FiChevronUp, FiSave } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiChevronDown, FiChevronUp, FiArrowUp, FiArrowDown, FiSave } from 'react-icons/fi';
 import { useLang } from '../../i18n/LanguageContext';
 
 const FALLBACK_IMG = '/images/resource-placeholder.svg';
+const createLocalId = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
 function FieldInput({ field, value, onChange }) {
   const { t } = useLang();
@@ -83,14 +84,24 @@ export default function AdminListEditor({
   addLabel = '',
   onSaveItem,
   onRemoveItem,
+  onReorder,
+  reorderable = false,
+  addAtEnd = false,
   hideAdd = false,
 }) {
-  const [openIndex, setOpenIndex] = useState(null);
+  const [openId, setOpenId] = useState(null);
   const { t } = useLang();
 
   const update = (idx, patch) => onChange(items.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
   const remove = (idx) => onChange(items.filter((_, i) => i !== idx));
-  const add = () => onChange([{ ...newItem, id: `local-${Date.now()}` }, ...items]);
+  const add = () => {
+    const item = {
+      ...newItem,
+      id: createLocalId(),
+      ...(reorderable ? { sortOrder: addAtEnd ? items.length + 1 : 1 } : {}),
+    };
+    onChange(addAtEnd ? [...items, item] : [item, ...items]);
+  };
 
   const handleRemove = async (item, idx) => {
     if (typeof onRemoveItem === 'function') {
@@ -104,13 +115,15 @@ export default function AdminListEditor({
   return (
     <div className="space-y-4">
       {items.map((item, idx) => {
-        const isOpen = openIndex === idx;
+        const itemId = item.id ?? `idx-${idx}`;
+        const itemTitle = item[titleKey] || t('admin.editor.newItem');
+        const isOpen = openId === itemId;
         return (
-          <div key={item.id ?? `idx-${idx}`} className="card-root overflow-hidden">
+          <div key={itemId} className="card-root overflow-hidden">
             <div className="flex items-center gap-3 px-5 py-4 border-b border-stroke/70 dark:border-[#2C303B]">
               <button
                 type="button"
-                onClick={() => setOpenIndex(isOpen ? null : idx)}
+                onClick={() => setOpenId(isOpen ? null : itemId)}
                 className="flex items-center gap-3 flex-1 min-w-0 text-left"
               >
                 {isOpen ? (
@@ -118,10 +131,38 @@ export default function AdminListEditor({
                 ) : (
                   <FiChevronDown className="w-4 h-4 text-primary flex-shrink-0" />
                 )}
-                <span className="text-sm font-bold text-dark dark:text-white truncate">
-                  {item[titleKey] || t('admin.editor.newItem')}
-                </span>
+                <span className="text-sm font-bold text-dark dark:text-white truncate">{itemTitle}</span>
               </button>
+              {reorderable && onReorder && (
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <span
+                    className="min-w-8 text-center text-xs font-bold text-body dark:text-body-dark"
+                    aria-label={`${t('admin.editor.position')} ${idx + 1}`}
+                  >
+                    #{idx + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onReorder(idx, -1)}
+                    disabled={idx === 0}
+                    aria-label={`${t('admin.editor.moveUp')}: ${itemTitle}`}
+                    title={t('admin.editor.moveUp')}
+                    className="h-9 w-9 bg-gray2 dark:bg-[#2C303B] text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <FiArrowUp className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onReorder(idx, 1)}
+                    disabled={idx === items.length - 1}
+                    aria-label={`${t('admin.editor.moveDown')}: ${itemTitle}`}
+                    title={t('admin.editor.moveDown')}
+                    className="h-9 w-9 bg-gray2 dark:bg-[#2C303B] text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <FiArrowDown className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
               {onSaveItem && (
                 <button
                   type="button"

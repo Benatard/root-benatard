@@ -171,18 +171,67 @@ export const experienceAPI = {
 
 const projects = forgeTable('projects');
 
-const toProject = (row) =>
-  row && {
-    ...row,
+const toSortOrder = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
+
+const projectYear = (project) => {
+  const year = Number.parseInt(project?.year, 10);
+  return Number.isFinite(year) ? year : 0;
+};
+
+const compareProjects = (a, b) => {
+  const aOrder = toSortOrder(a?.sortOrder);
+  const bOrder = toSortOrder(b?.sortOrder);
+  if (aOrder !== null && bOrder !== null && aOrder !== bOrder) return aOrder - bOrder;
+  if (aOrder !== null && bOrder === null) return -1;
+  if (aOrder === null && bOrder !== null) return 1;
+
+  const yearDiff = projectYear(b) - projectYear(a);
+  if (yearDiff !== 0) return yearDiff;
+
+  const createdDiff = String(b?.created_at || '').localeCompare(String(a?.created_at || ''));
+  if (createdDiff !== 0) return createdDiff;
+  return String(a?.id || '').localeCompare(String(b?.id || ''));
+};
+
+const toProject = (row) => {
+  if (!row) return row;
+  const { sort_order: sortOrderField, sortOrder: sortOrderValue, ...rest } = row;
+  return {
+    ...rest,
+    sortOrder: toSortOrder(sortOrderField ?? sortOrderValue),
     desc: row.description ?? row.desc,
     stack: parseJSONField(row.stack),
     image: row.image || '/images/app-placeholder.svg',
   };
+};
 
-const fromProject = (payload) => ({ ...cleanId(payload), description: payload.desc });
+const fromProject = (payload) => {
+  const { desc, description, sortOrder, ...rest } = payload;
+  const numericSortOrder = toSortOrder(sortOrder);
+  return {
+    ...cleanId(rest),
+    description: desc ?? description,
+    ...(numericSortOrder === null ? {} : { sort_order: numericSortOrder }),
+  };
+};
+
+const getProjects = async () => {
+  try {
+    const rows = await projects.list({ order: 'sort_order.asc' });
+    return rows.map(toProject).sort(compareProjects);
+  } catch (error) {
+    if (error?.response?.status !== 400) throw error;
+    const rows = await projects.list();
+    return rows.map(toProject).sort(compareProjects);
+  }
+};
 
 export const projectsAPI = {
-  get: () => projects.list().then((rows) => rows.map(toProject)),
+  get: getProjects,
   create: (payload) => projects.create(fromProject(payload)).then(toProject),
   update: (id, payload) => projects.update(id, fromProject(payload)).then(toProject),
   remove: (id) => projects.remove(id),

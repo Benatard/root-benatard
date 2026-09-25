@@ -1,12 +1,19 @@
 export async function syncList(api, prevItems, items) {
-  const prevIds = new Set((prevItems || []).map((item) => item.id));
-  const current = new Map(items.map((item) => [item.id, item]));
+  const previous = Array.isArray(prevItems) ? prevItems : [];
+  const currentItems = Array.isArray(items) ? items : [];
+  const prevIds = new Set(previous.map((item) => item.id));
+  const currentIds = new Set(currentItems.map((item) => item.id));
 
   for (const id of prevIds) {
-    if (!current.has(id)) await api.remove(id);
+    if (!currentIds.has(id)) await api.remove(id);
   }
-  for (const item of items) {
-    if (prevIds.has(item.id)) await api.update(item.id, item);
-    else await api.create(item);
+
+  const savedItems = [];
+  for (const item of currentItems) {
+    const savedItem = prevIds.has(item.id)
+      ? await api.update(item.id, item)
+      : await api.create(item);
+    savedItems.push(savedItem ? { ...item, ...savedItem } : item);
   }
+  return savedItems;
 }
