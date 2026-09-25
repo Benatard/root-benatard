@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiPlus, FiTrash2, FiChevronDown, FiChevronUp, FiArrowUp, FiArrowDown, FiSave } from 'react-icons/fi';
 import { useLang } from '../../i18n/LanguageContext';
 
 const FALLBACK_IMG = '/images/resource-placeholder.svg';
 const createLocalId = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+const toTagsDraft = (value) => (Array.isArray(value) ? value.join(', ') : value ?? '');
+const parseTags = (value) => value.split(',').map((tag) => tag.trim()).filter(Boolean);
 
 function FieldInput({ field, value, onChange }) {
   const { t } = useLang();
+  const [tagsDraft, setTagsDraft] = useState(() => toTagsDraft(value));
+  const tagsFocused = useRef(false);
+
+  useEffect(() => {
+    if (field.type !== 'tags' || tagsFocused.current) return;
+    setTagsDraft(toTagsDraft(value));
+  }, [field.type, value]);
   if (field.type === 'textarea') {
     return (
       <textarea
@@ -19,11 +28,21 @@ function FieldInput({ field, value, onChange }) {
     );
   }
   if (field.type === 'tags') {
-    const text = Array.isArray(value) ? value.join(', ') : '';
     return (
       <input
-        value={text}
-        onChange={(e) => onChange(e.target.value.split(',').map((s) => s.trim()).filter(Boolean))}
+        value={tagsDraft}
+        onFocus={() => { tagsFocused.current = true; }}
+        onChange={(e) => {
+          const draft = e.target.value;
+          setTagsDraft(draft);
+          onChange(parseTags(draft));
+        }}
+        onBlur={() => {
+          tagsFocused.current = false;
+          const tags = parseTags(tagsDraft);
+          setTagsDraft(tags.join(', '));
+          onChange(tags);
+        }}
         className="input-root"
         placeholder={field.placeholder || t('admin.editor.tagsPlaceholder')}
       />
