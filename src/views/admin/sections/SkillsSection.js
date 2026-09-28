@@ -4,11 +4,12 @@ import useResource from '../../../hooks/useResource';
 import { skillsAPI } from '../../../service/api';
 import Loading from '../../../components/ui/Loading';
 import ErrorBanner from '../../../components/ui/ErrorBanner';
-import { skillIcons, toDbCategory } from '../../../config/icons';
+import { skillIcons, techGroups, toDbCategory } from '../../../config/icons';
 import { toast } from '../../../service/swal';
 import { useLang } from '../../../i18n/LanguageContext';
 
 const ICON_KEYS = Object.keys(skillIcons);
+const AUTO_ICON = '';
 
 export default function SkillsSection() {
   const { t } = useLang();
@@ -45,7 +46,7 @@ export default function SkillsSection() {
     );
   const addSkill = (catId) =>
     setCategories((prev) =>
-      prev.map((c) => (c.id === catId ? { ...c, skills: [...c.skills, { name: '', level: 70 }] } : c))
+      prev.map((c) => (c.id === catId ? { ...c, skills: [...c.skills, { name: '', icon: AUTO_ICON }] } : c))
     );
 
   const save = async () => {
@@ -129,15 +130,21 @@ export default function SkillsSection() {
                   className="input-root flex-1"
                   placeholder={t('admin.skills.skillPlaceholder')}
                 />
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={skill.level || 0}
-                  onChange={(e) => updateSkill(category.id, idx, { level: Number(e.target.value) })}
-                  className="input-root w-24"
-                  placeholder={t('admin.skills.level')}
-                />
+                <select
+                  value={skill.icon ?? AUTO_ICON}
+                  onChange={(e) => updateSkill(category.id, idx, { icon: e.target.value })}
+                  className="input-root w-56"
+                  title={t('admin.skills.skillLogo')}
+                >
+                  <option value={AUTO_ICON}>{t('admin.skills.skillLogoAuto')}</option>
+                  {techGroups.map((group) => (
+                    <optgroup key={group.id} label={t(`admin.skills.group.${group.id}`)}>
+                      {group.keys.map((key) => (
+                        <option key={key} value={key}>{key}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
                 <button
                   type="button"
                   onClick={() => removeSkill(category.id, idx)}

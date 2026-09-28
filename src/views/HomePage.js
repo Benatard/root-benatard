@@ -8,7 +8,7 @@ import SectionTitle from '../components/ui/SectionTitle';
 import ProjectCard from '../components/ui/ProjectCard';
 import VideoCard from '../components/ui/VideoCard';
 import Slideshow from '../components/ui/Slideshow';
-import SkillBar from '../components/ui/SkillBar';
+import TechChip from '../components/ui/TechChip';
 import ForgeBadge from '../components/ui/ForgeBadge';
 import Loading from '../components/ui/Loading';
 import ErrorBanner from '../components/ui/ErrorBanner';
@@ -139,9 +139,9 @@ export default function HomePage() {
                       </span>
                       <h3 className="text-lg font-bold text-black dark:text-white">{name}</h3>
                     </div>
-                    <div className="mt-7 space-y-5">
+                    <div className="mt-7 flex flex-wrap gap-2.5">
                       {categorySkills.map((skill) => (
-                        <SkillBar key={skill.name} name={skill.name} level={skill.level} color={color} />
+                        <TechChip key={skill.name} name={skill.name} Icon={skill.Icon} brand={skill.brand} />
                       ))}
                     </div>
                   </div>

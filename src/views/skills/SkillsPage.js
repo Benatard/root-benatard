@@ -5,7 +5,7 @@ import PageMeta from '../../components/PageMeta';
 import { useProfile } from '../../context/ProfileContext';
 import Reveal from '../../components/ui/Reveal';
 import SectionTitle from '../../components/ui/SectionTitle';
-import SkillBar from '../../components/ui/SkillBar';
+import TechChip from '../../components/ui/TechChip';
 import Loading from '../../components/ui/Loading';
 import ErrorBanner from '../../components/ui/ErrorBanner';
 import useResource from '../../hooks/useResource';
@@ -86,9 +86,9 @@ export default function SkillsPage() {
                       </span>
                       <h2 className="text-xl font-bold text-black dark:text-white">{name}</h2>
                     </div>
-                    <div className="mt-7 space-y-6">
+                    <div className="mt-7 flex flex-wrap gap-2.5">
                       {categorySkills.map((skill) => (
-                        <SkillBar key={skill.name} name={skill.name} level={skill.level} color={color} />
+                        <TechChip key={skill.name} name={skill.name} Icon={skill.Icon} brand={skill.brand} />
                       ))}
                     </div>
                   </div>
