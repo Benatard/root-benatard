@@ -133,7 +133,7 @@ const fr = {
   'about.collaborate': 'Envie de collaborer sur un projet ?',
   'about.forgeTitle': 'Membre de l\'équipe Forge',
   'about.forgeText': 'Je construis des outils pour développeurs au sein de Forge (forgestartup.com) : backends, hébergement de code, langages de données et apps mobiles. Un seul modèle, HTTP simple, terminal d\'abord.',
-  'home.forgeText': 'Membre de l\'équipe Forge — construit des outils pour devs · une équipe · un modèle',
+  'home.forgeText': 'Membre de l\’équipe Forge — conception et développement de solutions web, mobiles et desktop pour startups et entreprises.',
   'about.workTogether': 'Travaillons ensemble',
   'about.myProjects': 'Projets',
 
@@ -705,7 +705,7 @@ const en = {
   'about.collaborate': 'Want to collaborate on a project?',
   'about.forgeTitle': 'Member of the Forge startup',
   'about.forgeText': "I'm part of the Forge team (forgestartup.com), building developer tools: backends, code hosting, data languages and mobile apps. One simple model, plain HTTP, terminal-first.",
-  'home.forgeText': "I'm part of the Forge team — building dev tools · one team · one model",
+  'home.forgeText': "Forge Team Member — designing and developing web, mobile, and desktop solutions for startups and businesses.",
   'about.workTogether': "Let's work together",
   'about.myProjects': 'My projects',
 
