@@ -268,16 +268,53 @@ const gallery = forgeTable('gallery');
 
 const FALLBACK_GALLERY_IMG = '/images/resource-placeholder.svg';
 
-const toGalleryItem = (row) =>
-  row && {
-    ...row,
+const toGalleryItem = (row) => {
+  if (!row) return row;
+  const { sort_order: sortOrderField, sortOrder: sortOrderValue, ...rest } = row;
+  return {
+    ...rest,
     image: row.image || FALLBACK_GALLERY_IMG,
+    sortOrder: toSortOrder(sortOrderField ?? sortOrderValue),
   };
+};
+
+const fromGallery = (payload) => {
+  const { sortOrder, ...rest } = payload;
+  const numericSortOrder = toSortOrder(sortOrder);
+  return {
+    ...cleanId(rest),
+    ...(numericSortOrder === null ? {} : { sort_order: numericSortOrder }),
+  };
+};
+
+const compareGallery = (a, b) => {
+  const aOrder = toSortOrder(a?.sortOrder);
+  const bOrder = toSortOrder(b?.sortOrder);
+  if (aOrder !== null && bOrder !== null && aOrder !== bOrder) return aOrder - bOrder;
+  if (aOrder !== null && bOrder === null) return -1;
+  if (aOrder === null && bOrder !== null) return 1;
+
+  const createdDiff = String(a?.created_at || '').localeCompare(String(b?.created_at || ''));
+  if (createdDiff !== 0) return createdDiff;
+  return String(a?.id || '').localeCompare(String(b?.id || ''));
+};
+
+const getGallery = async () => {
+  try {
+    const rows = await gallery.list({ order: 'sort_order.asc' });
+    return rows.map(toGalleryItem).sort(compareGallery);
+  } catch (error) {
+    if (error?.response?.status !== 400) throw error;
+    const rows = await gallery.list();
+    return rows.map(toGalleryItem).sort(compareGallery);
+  }
+};
 
 export const galleryAPI = {
-  get: () => gallery.list().then((rows) => rows.map(toGalleryItem)),
-  create: (payload) => gallery.create(cleanId(payload)).then(toGalleryItem),
-  update: (id, payload) => gallery.update(id, cleanId(payload)).then(toGalleryItem),
+  get: getGallery,
+  create: (payload) => gallery.create(fromGallery(payload)).then(toGalleryItem),
+  update: (id, payload) => gallery.update(id, fromGallery(payload)).then(toGalleryItem),
+  updateOrder: (id, sortOrder) => gallery.update(id, { sort_order: toSortOrder(sortOrder) ?? 1 }),
   remove: (id) => gallery.remove(id),
 };
 

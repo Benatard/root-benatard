@@ -97,10 +97,14 @@ Choisir l'ID **uuid** pour toutes les tables. Créer les colonnes suivantes
 | image   | text (URL ou chemin local, ex. `/images/photo.jpg`) |
 | title   | text (optionnel, légende principale) |
 | caption | text (optionnel, description sous le titre) |
+| sort_order | integer (position dans le carrousel, 1 = affiché en premier) |
 
 > Création : `forge/gallery.sql` (self-hosted) ou éditeur Schema. Le carrousel
 > est affiché sur `/galerie` et en version compacte sur l'accueil ; les photos
 > se gèrent dans `/admin` → onglet **Galerie**.
+> La colonne `sort_order` s'ajoute sur une base existante avec
+> `forge/gallery-order.sql` (ré-exécutable) ; l'ordre de réordonnancement se
+> règle avec les flèches dans l'admin.
 
 ### `messages` — lignes
 | colonne | type |

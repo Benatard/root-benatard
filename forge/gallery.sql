@@ -17,13 +17,14 @@ CREATE TABLE IF NOT EXISTS gallery (
   image       text,
   title       text,
   caption     text,
+  sort_order  integer NOT NULL DEFAULT 1,
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
 
 -- ---------- Photos démo (remplaçables via /admin) ----------
-INSERT INTO gallery (image, title, caption) VALUES
-  ('/images/platforms/miner-dashboard.svg', 'Plateforme Minière', 'Application de suivi pour le secteur minier.'),
-  ('/images/platforms/afya-dashboard.svg',     'Plateforme Afya',    'Système hospitalier déployé chez Umoja Industry.'),
-  ('/images/services/infra-it.svg',            'Infrastructure réseau', 'Câblage et connectique Hôpital CMOK / SKK.'),
-  ('/images/services/robotics.svg',            'Robotique',          'Projet robotique — prix compétition ISIPA.');
+INSERT INTO gallery (image, title, caption, sort_order) VALUES
+  ('/images/platforms/miner-dashboard.svg', 'Plateforme Minière', 'Application de suivi pour le secteur minier.', 1),
+  ('/images/platforms/afya-dashboard.svg',     'Plateforme Afya',    'Système hospitalier déployé chez Umoja Industry.', 2),
+  ('/images/services/infra-it.svg',            'Infrastructure réseau', 'Câblage et connectique Hôpital CMOK / SKK.', 3),
+  ('/images/services/robotics.svg',            'Robotique',          'Projet robotique — prix compétition ISIPA.', 4);

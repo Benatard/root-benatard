@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FiPlusCircle } from 'react-icons/fi';
+import React, { useEffect, useRef, useState } from 'react';
+import { FiPlusCircle, FiSave } from 'react-icons/fi';
 import useGallery from '../../../hooks/useGallery';
 import Loading from '../../../components/ui/Loading';
 import ErrorBanner from '../../../components/ui/ErrorBanner';
@@ -7,11 +7,45 @@ import { toast, confirmAction } from '../../../service/swal';
 import AdminListEditor from '../../../components/admin/AdminListEditor';
 import { useLang } from '../../../i18n/LanguageContext';
 
+const orderSignature = (photos) => photos.map((photo) => photo.id).join('|');
+
+const moveItem = (items, index, direction) => {
+  const nextIndex = index + direction;
+  if (nextIndex < 0 || nextIndex >= items.length) return items;
+  const next = [...items];
+  const [item] = next.splice(index, 1);
+  next.splice(nextIndex, 0, item);
+  return next;
+};
+
 export default function GallerySection() {
-  const { photos, loading, error, addPhoto, updatePhoto, removePhoto } = useGallery();
+  const { photos, setPhotos, loading, error, addPhoto, updatePhoto, saveOrder, removePhoto } = useGallery();
   const { t } = useLang();
   const [form, setForm] = useState({ image: '', title: '', caption: '' });
   const [saving, setSaving] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
+  const savedOrderRef = useRef('');
+
+  useEffect(() => {
+    if (!loading && !error) savedOrderRef.current = orderSignature(photos);
+  }, [photos, loading, error]);
+
+  const movePhoto = (index, direction) =>
+    setPhotos((current) => moveItem(current, index, direction));
+
+  const orderDirty = orderSignature(photos) !== savedOrderRef.current;
+
+  const handleSaveOrder = async () => {
+    setSavingOrder(true);
+    const { ok } = await saveOrder(photos);
+    setSavingOrder(false);
+    if (ok) {
+      savedOrderRef.current = orderSignature(photos);
+      toast('success', t('admin.gallery.orderSaved'));
+    } else {
+      toast('error', t('admin.saveError'));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +73,7 @@ export default function GallerySection() {
       toast('error', t('admin.gallery.imageRequired'));
       return false;
     }
-    const result = await updatePhoto(item.id, item);
+    const result = await updatePhoto(item.id, { ...item, sortOrder: undefined });
     if (result.ok) {
       toast('success', t('admin.gallery.savedItem'));
     } else {
@@ -134,7 +168,9 @@ export default function GallerySection() {
         <h2 className="text-lg font-bold text-black dark:text-white mb-5">{t('admin.gallery.existing')}</h2>
         <AdminListEditor
           items={photos}
-          onChange={() => {}}
+          onChange={setPhotos}
+          reorderable
+          onReorder={movePhoto}
           titleKey="title"
           hideAdd
           onSaveItem={handleSaveItem}
@@ -145,6 +181,16 @@ export default function GallerySection() {
             { key: 'caption', label: t('admin.gallery.field.caption'), type: 'textarea', rows: 2, full: true },
           ]}
         />
+        {photos.length > 1 && (
+          <button
+            type="button"
+            onClick={handleSaveOrder}
+            disabled={!orderDirty || savingOrder}
+            className="btn-primary-root w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FiSave className="w-4 h-4" /> {savingOrder ? t('common.saving') : t('admin.gallery.saveOrder')}
+          </button>
+        )}
       </div>
         </>
       )}

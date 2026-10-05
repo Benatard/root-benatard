@@ -514,7 +514,9 @@ const fr = {
   'admin.lms.save': 'Enregistrer la formation',
 
   'admin.gallery.title': 'Galerie',
-  'admin.gallery.sub': 'Les photos du carrousel (page /galerie et accueil). Celle de gauche sert de première slide.',
+  'admin.gallery.sub': "Les photos du carrousel (page /galerie et accueil). Utilisez les flèches pour choisir laquelle s'affiche en premier.",
+  'admin.gallery.saveOrder': "Enregistrer l'ordre d'affichage",
+  'admin.gallery.orderSaved': "Ordre d'affichage enregistré",
   'admin.gallery.error': "API inaccessible : impossible d'ajouter ou de modifier une photo.",
   'admin.gallery.addTitle': 'Ajouter une photo',
   'admin.gallery.imageLabel': 'Image (URL ou chemin local)',
@@ -1088,7 +1090,9 @@ const en = {
   'admin.lms.save': 'Save training',
 
   'admin.gallery.title': 'Gallery',
-  'admin.gallery.sub': 'The carousel photos (page /gallery and home). Leftmost is used as the first slide.',
+  'admin.gallery.sub': 'The carousel photos (page /gallery and home). Use the arrows to choose which one is shown first.',
+  'admin.gallery.saveOrder': "Save display order",
+  'admin.gallery.orderSaved': 'Display order saved',
   'admin.gallery.error': 'API unreachable: unable to add or edit a photo.',
   'admin.gallery.addTitle': 'Add a photo',
   'admin.gallery.imageLabel': 'Image (URL or local path)',
