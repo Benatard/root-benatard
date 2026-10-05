@@ -141,7 +141,7 @@ export default function HomePage() {
                 dots
                 stacked
                 text={t("home.forgeText")}
-                className="text-[19px] text-dark dark:text-body-dark hover:text-primary"
+                className="text-base text-dark dark:text-body-dark hover:text-primary"
               />
               <span className="my-7 h-px w-16 bg-stroke dark:bg-[#2C303B]" />
               <a
