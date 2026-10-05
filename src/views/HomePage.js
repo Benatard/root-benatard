@@ -16,7 +16,7 @@ import ProjectCard from "../components/ui/ProjectCard";
 import VideoCard from "../components/ui/VideoCard";
 import Slideshow from "../components/ui/Slideshow";
 import TechChip from "../components/ui/TechChip";
-import ForgeBadge from "../components/ui/ForgeBadge";
+import ForgeBadge, { FORGE_URL } from "../components/ui/ForgeBadge";
 import Loading from "../components/ui/Loading";
 import ErrorBanner from "../components/ui/ErrorBanner";
 import useResource from "../hooks/useResource";
@@ -136,18 +136,21 @@ export default function HomePage() {
           </div>
 
           <Reveal className="mt-10">
-            <div className="card-root px-6 py-5 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+            <div className="card-root px-6 py-10 flex flex-col items-start text-left transition-shadow duration-300 hover:shadow-card-hover">
               <ForgeBadge
-              dots
+                dots
+                stacked
                 text={t("home.forgeText")}
-                className="text-[16px] text-dark dark:text-body-dark hover:text-primary"
+                className="text-[19px] text-dark dark:text-body-dark hover:text-primary"
               />
-              <span className="hidden md:block h-4 w-px bg-stroke dark:bg-[#2C303B]" />
+              <span className="my-7 h-px w-16 bg-stroke dark:bg-[#2C303B]" />
               <a
-                href="https://forgestartup.com"
-                className="text-[16px] font-semibold text-body dark:text-body-dark"
+                href={FORGE_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-all hover:gap-2.5"
               >
-                forgestartup.com →
+                forgestartup.com <FiArrowRight className="w-4 h-4" />
               </a>
             </div>
           </Reveal>
