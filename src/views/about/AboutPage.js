@@ -1,16 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiAward, FiBookOpen, FiBriefcase, FiCheck, FiTarget, FiEye, FiDownload } from 'react-icons/fi';
+import { FiArrowRight, FiAward, FiBookOpen, FiBriefcase, FiCheck, FiTarget, FiEye } from 'react-icons/fi';
 import PageMeta from '../../components/PageMeta';
 import { useProfile } from '../../context/ProfileContext';
 import Reveal from '../../components/ui/Reveal';
 import SectionTitle from '../../components/ui/SectionTitle';
 import ForgeBadge from '../../components/ui/ForgeBadge';
+import CvDownloadLink from '../../components/ui/CvDownloadLink';
 import Loading from '../../components/ui/Loading';
 import ErrorBanner from '../../components/ui/ErrorBanner';
 import useResource from '../../hooks/useResource';
 import { experienceAPI } from '../../service/api';
-import { resolveUploadUrl } from '../../config/config';
 import { useLang } from '../../i18n/LanguageContext';
 
 export default function AboutPage() {
@@ -182,14 +182,11 @@ export default function AboutPage() {
           </Reveal>
           {profile.resumeUrl && (
             <div className="mt-10 text-center">
-              <a
-                href={resolveUploadUrl(profile.resumeUrl)}
-                download
-                aria-label={t('aside.downloadCvOf', { name: profile.name })}
+              <CvDownloadLink
+                profile={profile}
                 className="btn-outline-root"
-              >
-                <FiDownload className="w-4 h-4" /> {t('about.downloadCv')}
-              </a>
+                label={t("about.downloadCv")}
+              />
             </div>
           )}
         </div>

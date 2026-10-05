@@ -83,6 +83,8 @@ const fr = {
   'aside.findMe': 'Retrouvez-moi sur',
   'aside.photoPopupAria': 'Photo de profil agrandie',
 
+  'cv.downloadStarted': 'Votre CV est en cours de téléchargement.',
+
   'home.metaTitle': 'Accueil',
   'home.seeProjects': ' Projets',
   'home.myTutorials': 'Mes tutos vidéo',
@@ -654,6 +656,8 @@ const en = {
   'aside.downloadCvOf': "Download {{name}}'s CV",
   'aside.findMe': 'Find me on',
   'aside.photoPopupAria': 'Enlarged profile photo',
+
+  'cv.downloadStarted': 'Your CV is downloading.',
 
   'home.metaTitle': 'Home',
   'home.seeProjects': 'See my projects',

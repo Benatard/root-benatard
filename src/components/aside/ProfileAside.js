@@ -9,12 +9,12 @@ import {
   FiLinkedin,
   FiYoutube,
   FiTwitter,
-  FiDownload,
   FiCheckCircle,
   FiMaximize,
   FiX,
 } from "react-icons/fi";
 import { resolveUploadUrl } from "../../config/config";
+import CvDownloadLink from "../ui/CvDownloadLink";
 import Loading from "../ui/Loading";
 import { useLang } from "../../i18n/LanguageContext";
 
@@ -136,14 +136,10 @@ export default function ProfileAside({ profile, compact = false }) {
             <span className=" inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
               <FiCheckCircle className="w-3.5 h-3.5" /> {profile.availability}
             </span>
-            <a
-              href={resolveUploadUrl(profile.resumeUrl)}
-              download
-              aria-label={t("aside.downloadCvOf", { name: profile.name })}
+            <CvDownloadLink
+              profile={profile}
               className="btn-primary-root mt-1 text-[11px] w-50 h-5"
-            >
-              <FiDownload className="w-4 h-4  " /> {t("aside.downloadCv")}
-            </a>
+            />
           </div>
         </div>
         <ProfilePhotoPopup
@@ -249,14 +245,7 @@ export default function ProfileAside({ profile, compact = false }) {
         </div>
 
         {profile.resumeUrl && (
-          <a
-            href={resolveUploadUrl(profile.resumeUrl)}
-            download
-            aria-label={t("aside.downloadCvOf", { name: profile.name })}
-            className="btn-primary-root w-full"
-          >
-            <FiDownload className="w-4 h-4" /> {t("aside.downloadCv")}
-          </a>
+          <CvDownloadLink profile={profile} className="btn-primary-root w-full" />
         )}
 
         <div className="card-root p-6">
