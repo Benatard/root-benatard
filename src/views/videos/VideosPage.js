@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   FiPlayCircle, FiArrowLeft, FiCheckCircle, FiCircle, FiChevronRight, FiCheck, FiBookOpen,
+  FiUser, FiAlertCircle,
 } from 'react-icons/fi';
 import PageMeta from '../../components/PageMeta';
 import Reveal from '../../components/ui/Reveal';
@@ -8,17 +9,9 @@ import Loading from '../../components/ui/Loading';
 import ErrorBanner from '../../components/ui/ErrorBanner';
 import CodeBlock from '../../components/ui/CodeBlock';
 import useLMS from '../../hooks/useLMS';
+import useEnrollment from '../../hooks/useEnrollment';
+import { toast } from '../../service/swal';
 import { useLang } from '../../i18n/LanguageContext';
-
-const PROGRESS_KEY = 'lms_progress';
-
-const readProgress = () => {
-  try {
-    return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {};
-  } catch {
-    return {};
-  }
-};
 
 const renderText = (text) =>
   (text || '')
@@ -28,37 +21,56 @@ const renderText = (text) =>
 
 export default function VideosPage() {
   const { modules, loading, error } = useLMS();
+  const {
+    status, isDone, moduleProgress, toggleDone, register, registering, syncing,
+  } = useEnrollment();
   const { t } = useLang();
   const list = modules || [];
   const [activeModuleId, setActiveModuleId] = useState(null);
   const [activeLessonId, setActiveLessonId] = useState(null);
-  const [progress, setProgress] = useState(readProgress);
+  const [form, setForm] = useState({ name: '', email: '' });
+  const [formError, setFormError] = useState(null);
+  const [enrolling, setEnrolling] = useState(false);
+  const [pendingModuleId, setPendingModuleId] = useState(null);
 
-  useEffect(() => {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
-  }, [progress]);
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const result = await register(form);
+    if (result.ok) {
+      setFormError(null);
+      setEnrolling(false);
+      toast('success', t('videos.enroll.success'));
+      // on ouvre directement la formation demandée
+      const target = list.find((m) => m.id === pendingModuleId);
+      setPendingModuleId(null);
+      if (target) {
+        setActiveModuleId(target.id);
+        setActiveLessonId((target.lessons && target.lessons[0] && target.lessons[0].id) || null);
+      }
+    } else {
+      setFormError(result.error);
+    }
+  };
+
+  const cancelEnroll = () => {
+    setEnrolling(false);
+    setPendingModuleId(null);
+    setFormError(null);
+  };
 
   const activeModule = list.find((m) => m.id === activeModuleId) || null;
   const lessons = activeModule ? activeModule.lessons || [] : [];
   const activeLessonIdx = lessons.findIndex((l) => l.id === activeLessonId);
   const activeLesson = lessons[activeLessonIdx] || null;
 
-  const isDone = (mId, lId) => !!(progress[mId] && progress[mId][lId]);
-
-  const toggleDone = (mId, lId) =>
-    setProgress((p) => {
-      const current = !!(p[mId] && p[mId][lId]);
-      return { ...p, [mId]: { ...(p[mId] || {}), [lId]: !current } };
-    });
-
-  const moduleProgress = (m) => {
-    const ls = m?.lessons || [];
-    if (!ls.length) return 0;
-    const done = ls.filter((l) => isDone(m.id, l.id)).length;
-    return Math.round((done / ls.length) * 100);
-  };
-
   const openModule = (m) => {
+    // les formations sont visibles sans inscription : on ne bloque
+    // qu'au moment d'y entrer.
+    if (status === 'pending') {
+      setPendingModuleId(m.id);
+      setEnrolling(true);
+      return;
+    }
     setActiveModuleId(m.id);
     setActiveLessonId((m.lessons && m.lessons[0] && m.lessons[0].id) || null);
   };
@@ -101,10 +113,87 @@ export default function VideosPage() {
 
       <section className="bg-white dark:bg-gray-dark">
         <div className="py-16 md:py-19">
-          {loading ? (
+          {loading || status === 'loading' ? (
             <Loading variant="cardGrid2" />
-          ) : error ? (
+          ) : error || status === 'error' ? (
             <ErrorBanner />
+          ) : enrolling && status === 'pending' ? (
+            <Reveal>
+              <div className="mx-auto max-w-xl">
+                <form onSubmit={handleRegister} className="card-root p-6 md:p-8">
+                  <span className="eyebrow-root">
+                    <span className="h-1.5 w-1.5 bg-primary inline-block" />
+                    {t('videos.enroll.eyebrow')}
+                  </span>
+                  <h2 className="mt-5 text-2xl font-extrabold text-black dark:text-white">
+                    {t('videos.enroll.title')}
+                  </h2>
+                  <p className="mt-3 text-sm text-body dark:text-body-dark leading-relaxed">
+                    {t('videos.enroll.subtitle')}
+                  </p>
+
+                  <div className="mt-6 space-y-4">
+                    <div>
+                      <label className="label-root mb-2.5" htmlFor="enroll-name">
+                        {t('videos.enroll.name')}
+                      </label>
+                      <input
+                        id="enroll-name"
+                        name="name"
+                        autoComplete="name"
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        className="input-root"
+                        placeholder={t('videos.enroll.namePlaceholder')}
+                      />
+                    </div>
+                    <div>
+                      <label className="label-root mb-2.5" htmlFor="enroll-email">
+                        {t('videos.enroll.email')}
+                      </label>
+                      <input
+                        id="enroll-email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        className="input-root"
+                        placeholder={t('videos.enroll.emailPlaceholder')}
+                      />
+                    </div>
+                  </div>
+
+                  {formError && (
+                    <p className="mt-4 flex items-start gap-2 text-sm font-semibold text-red-500">
+                      <FiAlertCircle className="mt-0.5 w-4 h-4 flex-shrink-0" />
+                      {t(formError)}
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={registering}
+                    className="btn-primary-root w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <FiUser className="w-4 h-4" />
+                    {registering ? t('videos.enroll.submitting') : t('videos.enroll.submit')}
+                  </button>
+
+                  <p className="mt-4 text-xs leading-relaxed text-body dark:text-body-dark">
+                    {t('videos.enroll.hint')}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={cancelEnroll}
+                    className="btn-outline-root w-full mt-3"
+                  >
+                    {t('videos.allModules')}
+                  </button>
+                </form>
+              </div>
+            </Reveal>
           ) : activeModule ? (
             <Reveal>
               <section key={activeModule.id} className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
@@ -198,10 +287,11 @@ export default function VideosPage() {
                             {activeLesson.title}
                           </h3>
                           <div className="flex flex-wrap items-center gap-3">
-                            <button
-                              type="button"
-                              onClick={() => toggleDone(activeModule.id, activeLesson.id)}
-                              className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
+                          <button
+                            type="button"
+                            onClick={() => toggleDone(activeModule.id, activeLesson.id)}
+                            disabled={syncing}
+                            className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
                                 isDone(activeModule.id, activeLesson.id)
                                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100'
                                   : 'bg-primary text-white hover:bg-primary-dark'

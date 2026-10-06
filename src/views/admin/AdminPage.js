@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FiGrid, FiUser, FiCode, FiFolder, FiBriefcase, FiPlayCircle, FiBookOpen, FiLink, FiImage, FiMail,
-  FiLogOut, FiExternalLink, FiShield,
+  FiLogOut, FiExternalLink, FiShield, FiUsers,
 } from 'react-icons/fi';
 import useAuth from '../../hooks/useAuth';
 import AdminLogin from '../../components/admin/AdminLogin';
@@ -16,6 +16,7 @@ import LMSSection from './sections/LMSSection';
 import GallerySection from './sections/GallerySection';
 import ResourcesSection from './sections/ResourcesSection';
 import MessagesSection from './sections/MessagesSection';
+import StudentsSection from './sections/StudentsSection';
 import { useLang } from '../../i18n/LanguageContext';
 
 const TABS = [
@@ -29,6 +30,7 @@ const TABS = [
   { key: 'gallery', icon: FiImage },
   { key: 'resources', icon: FiLink },
   { key: 'messages', icon: FiMail },
+  { key: 'students', icon: FiUsers },
 ];
 
 export default function AdminPage() {
@@ -58,6 +60,8 @@ export default function AdminPage() {
         return <ResourcesSection />;
       case 'messages':
         return <MessagesSection />;
+      case 'students':
+        return <StudentsSection />;
       default:
         return <DashboardSection onNavigate={setTab} />;
     }

@@ -120,6 +120,24 @@ Choisir l'ID **uuid** pour toutes les tables. Créer les colonnes suivantes
 |---------|------|
 | email   | text |
 
+### `students` — apprenants de la formation
+| colonne    | type | option |
+|------------|------|--------|
+| name       | text | nom affiché dans l'admin |
+| email      | text | unique (insensible à la casse) — sert d'identifiant |
+| progress   | jsonb | `{ "<module-id>": { "<lesson-id>": true } }` |
+
+> Création : `forge/students.sql` (self-hosted) ou éditeur Schema.
+> Une ligne = une personne inscrite depuis `/videos` (portail nom + email,
+> sans mot de passe). `progress` reprend la structure de l'ancien
+> `localStorage['lms_progress']` ; l'avancement se lit dans `/admin` →
+> onglet **Apprenants**.
+> ⚠️ `require_auth` étant projet entier (§3) et désactivé, la table est
+> lisible par quiconque possède la clé API — comme `messages`. Restreindre
+> la lecture dans la console Forge si l'option existe.
+> Les ids de modules/leçons doivent être stables : ils sont produits par
+> `ensureFormationIds` (`src/hooks/useLMS.js`) et persistés à la sauvegarde.
+
 ### `admin` — table d'authentification (end-user auth)
 | colonne  | type   | option        |
 |----------|--------|---------------|

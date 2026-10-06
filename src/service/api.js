@@ -16,7 +16,9 @@ import config from '../config/config';
  *   profile, skills, experience  → 1 ligne avec colonnes JSON (socials, stats,
  *                                   categories, experiences, education, values)
  *   projects, videos, resources,
- *   messages, newsletter          → tables de lignes
+ *   messages, newsletter,
+ *   students             → tables de lignes
+ *   (students.progress est un JSONB { moduleId: { lessonId: true } })
  */
 
 export const FORGE_CONFIGURED = Boolean(config.FORGE.PROJECT_KEY && config.FORGE.API_KEY);
@@ -330,6 +332,31 @@ export const messagesAPI = {
   get: () => messages.list().then((rows) => rows.map(toMessage)),
   markRead: (id, read) => messages.update(id, { read }),
   remove: (id) => messages.remove(id),
+};
+
+/* ---------------- Apprenants de la formation ---------------- */
+
+const students = forgeTable('students');
+
+const toStudent = (row) => row && { ...row, progress: parseJSONField(row.progress) || {} };
+
+const getStudents = async () => {
+  try {
+    const rows = await students.list({ order: 'created_at.desc' });
+    return rows.map(toStudent);
+  } catch (error) {
+    if (error?.response?.status !== 400) throw error;
+    const rows = await students.list();
+    return rows.map(toStudent).sort((a, b) =>
+      String(b?.created_at || '').localeCompare(String(a?.created_at || ''))
+    );
+  }
+};
+
+export const studentsAPI = {
+  get: getStudents,
+  create: (payload) => students.create(cleanId(payload)).then(toStudent),
+  update: (id, payload) => students.update(id, cleanId(payload)).then(toStudent),
 };
 
 /* ---------------- Divers (contact / newsletter) ---------------- */

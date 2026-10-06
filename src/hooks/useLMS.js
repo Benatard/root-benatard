@@ -4,31 +4,35 @@ import { useLang } from '../i18n/LanguageContext';
 
 const SEED_FLAG = 'lms_seeded_v1';
 
-const uid = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-
+/*
+ * Ids déterministes, dérivés de la position, et NON aléatoires.
+ * Les ids servent de clés pour la progression des apprenants
+ * (students.progress = { moduleId: { lessonId: true } }) : ils doivent donc
+ * être identiques d'un chargement à l'autre. uid() (Date.now + aléa) rendait
+ * la progression invalide à chaque rechargement.
+ * Un id déjà présent (données seed, création depuis /admin) est conservé.
+ */
 const ensureFormationIds = (formations) =>
   (formations || []).map((f, i) => ({
     ...f,
-    id: f.id || `local-f-${i}-${uid()}`,
+    id: f.id || `formation-${i}`,
     modules: (f.modules || []).map((m, j) => ({
       ...m,
-      id: m.id || `local-m-${i}-${j}-${uid()}`,
+      id: m.id || `module-${i}-${j}`,
       lessons: (m.lessons || []).map((l, k) => ({
         ...l,
-        id: l.id || `local-l-${i}-${j}-${k}-${uid()}`,
+        id: l.id || `lesson-${i}-${j}-${k}`,
       })),
     })),
   }));
 
-const stripFormationIds = (formations) =>
-  formations.map(({ id, ...formation }) => ({
+/* À enregistrer en base : les ids sont conservés (voir ci-dessus). */
+const toPersistedFormations = (formations) =>
+  (formations || []).map((formation) => ({
     ...formation,
-    modules: (formation.modules || []).map(({ id: mId, ...module }) => ({
+    modules: (formation.modules || []).map((module) => ({
       ...module,
-      lessons: (module.lessons || []).map(({ id: lId, ...lesson }) => ({
-        ...lesson,
-        sections: (lesson.sections || []).map(({ id: sId, ...section }) => section),
-      })),
+      lessons: (module.lessons || []).map((lesson) => ({ ...lesson })),
     })),
   }));
 
@@ -69,7 +73,7 @@ export default function useLMS() {
                     title: 'Vidéothèque',
                     description: 'Mes anciens tutoriels, regroupés au fil de la formation.',
                     lessons: legacy.map((video, i) => ({
-                      id: video.id || `lesson-${i}-${uid()}`,
+                      id: video.id || `lesson-legacy-${i}`,
                       title: video.title || 'Sans titre',
                       url: video.url || '',
                       embedUrl: video.embedUrl || '',
@@ -79,7 +83,7 @@ export default function useLMS() {
                 ],
               },
             ];
-            await lmsAPI.save({ formations: stripFormationIds(list) }).catch(() => {});
+            await lmsAPI.save({ formations: toPersistedFormations(list) }).catch(() => {});
           }
           localStorage.setItem(SEED_FLAG, '1');
         }
@@ -107,7 +111,7 @@ export default function useLMS() {
 
   const save = useCallback(async (fms) => {
     try {
-      const row = await lmsAPI.save({ formations: stripFormationIds(fms) });
+      const row = await lmsAPI.save({ formations: toPersistedFormations(fms) });
       const saved = toFormations(row || {});
       setFormations(ensureFormationIds(saved.length ? saved : fms));
       setSource('api');
