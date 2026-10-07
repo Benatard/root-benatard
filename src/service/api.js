@@ -28,9 +28,40 @@ const BASE = `${config.FORGE.BASE_URL}/${config.FORGE.PROJECT_KEY}`;
 
 const http = axios.create({ baseURL: BASE });
 
+/*
+ * Session — le JWT est gardé en localStorage pour survivre à la fermeture
+ * de l'onglet (une formation se suit sur plusieurs jours). L'ancien
+ * sessionStorage est migré puis purgé au premier accès.
+ */
+export const getToken = () => {
+  try {
+    const legacy = sessionStorage.getItem(FORGE_TOKEN_KEY);
+    if (legacy) {
+      sessionStorage.removeItem(FORGE_TOKEN_KEY);
+      localStorage.setItem(FORGE_TOKEN_KEY, legacy);
+      return legacy;
+    }
+    return localStorage.getItem(FORGE_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+};
+
+export const setToken = (token) => {
+  try {
+    sessionStorage.removeItem(FORGE_TOKEN_KEY);
+    if (token) localStorage.setItem(FORGE_TOKEN_KEY, token);
+    else localStorage.removeItem(FORGE_TOKEN_KEY);
+  } catch {
+    /* stockage indisponible : la session sera simplement éphémère */
+  }
+};
+
+export const clearToken = () => setToken(null);
+
 http.interceptors.request.use((cfg) => {
   cfg.headers['x-api-key'] = config.FORGE.API_KEY;
-  const token = sessionStorage.getItem(FORGE_TOKEN_KEY) || localStorage.getItem(FORGE_TOKEN_KEY);
+  const token = getToken();
   if (token) cfg.headers.Authorization = `Bearer ${token}`;
   return cfg;
 });
@@ -79,7 +110,7 @@ const cleanId = (item) => {
 
 const unwrapRow = (row) => row && { ...(row.data || {}), id: row.id, created_at: row.created_at, updated_at: row.updated_at };
 
-const parseJSONField = (value) => {
+export const parseJSONField = (value) => {
   if (value == null || typeof value !== 'string') return value;
   try {
     return JSON.parse(value);
@@ -88,15 +119,40 @@ const parseJSONField = (value) => {
   }
 };
 
-/* ---------------- Auth (admin) ---------------- */
+/* ---------------- Auth (end-user : admin + apprenants) ---------------- */
+
+const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
+
+const toAuthPayload = (data) => ({
+  token: data.token || data.jwt || data.access_token,
+  user: data.user || data,
+});
 
 export const authAPI = {
   login: ({ email, password }) =>
-    req(() => http.post('/auth/login', { [config.FORGE.IDENTIFIER_COLUMN]: email, password })).then((data) => ({
-      token: data.token || data.jwt || data.access_token,
-      user: data.user || data,
-    })),
-  me: () => req(() => http.get('/auth/me')).then((data) => data),
+    req(() => http.post('/auth/login', { [config.FORGE.IDENTIFIER_COLUMN]: email, password })).then(toAuthPayload),
+  signup: ({ email, password }) =>
+    req(() => http.post('/auth/signup', { [config.FORGE.IDENTIFIER_COLUMN]: email, password })).then(toAuthPayload),
+  me: () => req(() => http.get('/auth/me')).then((data) => data.user || data),
+
+  /*
+   * Le rôle n'est NI dans le JWT (claims : iat, exp, sub, email, pid, tid)
+   * NI dans /auth/me (id, email, created_at) : il vit dans la table `admin`.
+   * On ne renvoie que le rôle — jamais le hash `password`.
+   * Échec API → `null` : on n'élève jamais quelqu'un en admin par défaut
+   * (échec fermé).
+   */
+  role: async (email) => {
+    const target = normalizeEmail(email);
+    if (!target) return null;
+    try {
+      const rows = await forgeTable('admin').list({ limit: 200 });
+      const found = rows.find((row) => normalizeEmail(row.email) === target);
+      return (found && found.role) || 'student';
+    } catch {
+      return null;
+    }
+  },
 };
 
 /* ---------------- Blocs une-ligne (JSON) ---------------- */
@@ -139,14 +195,91 @@ export const skillsAPI = {
   },
 };
 
-const lmsTable = singleRow('lms', 'portfolio_lms_id');
+const LMS_ID_KEY = 'portfolio_lms_id';
+const lmsTable = singleRow('lms', LMS_ID_KEY);
 
-const toLMSRow = (row) => row && { ...row, modules: parseJSONField(row.modules) };
+const toLMSRow = (row) => row && {
+  ...row,
+  formations: parseJSONField(row.formations),
+  modules: parseJSONField(row.modules),
+};
+
+/*
+ * Formations d'une ligne, quel que soit son état :
+ *  - `formations` : clé active, tableau de formations ;
+ *  - `modules`   : repli rétro-compat (tableau de modules → 1 formation).
+ * Forge peut renvoyer une colonne JSON en string selon son type en base :
+ * on parse dans les deux cas avant de tester Array.isArray.
+ */
+export const toFormations = (row) => {
+  if (!row) return [];
+  const formations = parseJSONField(row.formations);
+  if (Array.isArray(formations)) return formations;
+  const modules = parseJSONField(row.modules);
+  if (Array.isArray(modules) && modules.length) {
+    return [{ id: 'formation-default', title: '', description: '', modules }];
+  }
+  return [];
+};
+
+/*
+ * `lms` est documenté comme « 1 seule ligne », mais la table en accumule
+ * plusieurs : lignes d'exemple générées par Forge, seed SQL, contenus créés
+ * depuis /admin. `list({limit:1})` ne choisit pas laquelle lire de façon
+ * déterministe (les created_at sont identiques par paquet → l'ordre Postgres
+ * change après chaque UPDATE) : les formations semblaient donc disparaître
+ * et réapparaître au gré des enregistrements.
+ *
+ * On lit TOUTES les lignes et on fusionne, en dédoublonnant par id/titre.
+ */
+const mergeLmsRows = (rows) => {
+  const merged = [];
+  const seen = new Set();
+  rows.forEach((row) => {
+    toFormations(toLMSRow(row)).forEach((formation) => {
+      const key = formation && (formation.id || formation.title);
+      if (key) {
+        if (seen.has(key)) return;
+        seen.add(key);
+      }
+      merged.push(formation);
+    });
+  });
+  return merged;
+};
+
+/* Cible d'écriture stable : la ligne la plus riche, puis id croissant. */
+const lmsScore = (row) => {
+  const parsed = toLMSRow(row);
+  const modules = Array.isArray(parsed.modules) ? parsed.modules.length : 0;
+  return toFormations(parsed).length * 10 + modules;
+};
+
+const pickLmsRow = (rows) =>
+  [...rows].sort(
+    (a, b) => lmsScore(b) - lmsScore(a) || String(a.id).localeCompare(String(b.id))
+  )[0];
 
 export const lmsAPI = {
-  get: async () => toLMSRow(await lmsTable.get()),
+  get: async () => {
+    const rows = await forgeTable('lms').list({ limit: 200 });
+    if (!rows.length) return null;
+    const primary = pickLmsRow(rows);
+    // on force la cible d'écriture sur la ligne retenue, sinon singleRow
+    // réutiliserait un id potentiellement périmé gardé en localStorage.
+    localStorage.setItem(LMS_ID_KEY, primary.id);
+    return toLMSRow({ ...primary, formations: mergeLmsRows(rows) });
+  },
   save: async (payload) => {
-    const row = await lmsTable.save(cleanId(payload));
+    const clean = cleanId(payload);
+    let row;
+    try {
+      row = await lmsTable.save(clean);
+    } catch (err) {
+      // id local pointant vers une ligne déjà supprimée → on repart en création
+      localStorage.removeItem(LMS_ID_KEY);
+      row = await lmsTable.save(clean);
+    }
     return toLMSRow(row);
   },
 };

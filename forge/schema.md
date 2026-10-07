@@ -39,18 +39,30 @@ Choisir l'ID **uuid** pour toutes les tables. Créer les colonnes suivantes
 | categories | json |
 
 ### `lms` — 1 seule ligne (mini-LMS : formation par modules)
-| colonne | type |
-|---------|------|
-| modules | json |
+| colonne   | type |
+|-----------|------|
+| formations | json |
+| modules   | json |
 
-> `modules` est un tableau de modules de formation. Chaque module :
+> `formations` est la clé **active** : un tableau de formations, chacune
+> `{ "id", "title", "description", "modules": [ ... ] }`.
+> `modules` est le repli rétro-compat (le tableau de modules de la 1ʳᵉ
+> formation) : la sauvegarde écrit les **deux** clés, car le PATCH Forge
+> remplace le blob de la ligne.
+>
+> Chaque module :
 > `{ "id", "title", "description", "lessons": [ ... ] }`.
 > Chaque leçon d'un module :
 > `{ "id", "title", "url", "embedUrl", "content" }` —
 > `url` = lien de la vidéo (YouTube, Google Drive, Vimeo ou Dailymotion),
 > `embedUrl` = URL d'iframe générée par le site, `content` = récapitulatif
 > écrit de la leçon. La progression des apprenants est stockée côté visiteur
-> dans le localStorage (clé `lms_progress`), pas en base.
+> dans le localStorage (clé `lms_progress`) et synchronisée sur `students`
+> via le portail d'inscription de `/videos`.
+>
+> ⚠️ Forge peut renvoyer une colonne JSON en **string** selon son type en
+> base : tout le côté lecture passe par `parseJSONField`
+> (`src/service/api.js`) — ne jamais lire `row.formations` brute.
 
 ### `experience` — 1 seule ligne
 | colonne     | type |
@@ -128,10 +140,15 @@ Choisir l'ID **uuid** pour toutes les tables. Créer les colonnes suivantes
 | progress   | jsonb | `{ "<module-id>": { "<lesson-id>": true } }` |
 
 > Création : `forge/students.sql` (self-hosted) ou éditeur Schema.
-> Une ligne = une personne inscrite depuis `/videos` (portail nom + email,
-> sans mot de passe). `progress` reprend la structure de l'ancien
+> Une ligne = un apprenant, liée à son compte d'authentification (§2) **par
+> l'email** (normalisé en minuscules). Le nom est saisi à la création du
+> compte puis conservé ici. `progress` reprend la structure de l'ancien
 > `localStorage['lms_progress']` ; l'avancement se lit dans `/admin` →
 > onglet **Apprenants**.
+> La fiche est créée automatiquement : au signup, puis par provisionnement
+> paresseux (`src/hooks/useStudent.js`) si elle manque au login.
+> Les comptes sans mot de passe de l'ancien portail sont ignorés : il n'y a
+> pas de migration, l'apprenant crée simplement un compte sur `/videos`.
 > ⚠️ `require_auth` étant projet entier (§3) et désactivé, la table est
 > lisible par quiconque possède la clé API — comme `messages`. Restreindre
 > la lecture dans la console Forge si l'option existe.
@@ -145,14 +162,27 @@ Choisir l'ID **uuid** pour toutes les tables. Créer les colonnes suivantes
 | password | text   | **hidden**    |
 | role     | text   | (ex: "admin") |
 
+> Cette table sert **toutes** les sessions : admin **et** apprenants. Un
+> apprenant y a une ligne (créée par signup) avec `role` vide ; seul
+> `role === 'admin'` ouvre `/admin`. `src/service/api.js` lit la table par
+> `GET /admin?limit=200` et ne renvoie que le rôle (jamais `password`).
+> ⚠️ La lecture publique expose le hash `password` de cette table ; vérifier
+> dans la console Forge s'il est possible de masquer cette colonne en lecture.
+
 ## 2. Auth (onglet **Auth**)
 - Table : `admin`
 - Colonne identifiant : `email`
 - Colonne mot de passe : `password` (hidden — stocke le hash)
-- JWT lifetime : `12` heures
+- Endpoints : `POST /auth/signup` (`{email, password}` → `{user, token}`),
+  `POST /auth/login`, `GET /auth/me`
+- JWT lifetime : `30` jours (720 h) — constaté sur signup **et** login
+- Claims du JWT : `iat, exp, sub, email, pid, tid` — **aucun `role`**.
+  `GET /auth/me` renvoie `{id, email, created_at}` — pas de `role` non plus.
+  → Le rôle est donc relu dans la table `admin` par email à chaque session.
 - Créer le compte admin via le **Auth playground** (signup) avec l'email de
   `REACT_APP_ADMIN_EMAIL` et un mot de passe fort — ne pas insérer la ligne
-  admin manuellement (le hash doit être généré par Forge).
+  admin manuellement (le hash doit être généré par Forge), puis passer son
+  `role` à `admin` dans l'éditeur de table.
 
 ## 3. Middlewares (onglet **Middlewares**)
 - **CORS** : activer pour l'origine du site (ex: `http://localhost:3000`).

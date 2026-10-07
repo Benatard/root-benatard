@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { lmsAPI, videosAPI } from '../service/api';
+import { lmsAPI, videosAPI, toFormations } from '../service/api';
 import { useLang } from '../i18n/LanguageContext';
 
 const SEED_FLAG = 'lms_seeded_v1';
+
+const arr = (value) => (Array.isArray(value) ? value : []);
 
 /*
  * Ids déterministes, dérivés de la position, et NON aléatoires.
@@ -13,13 +15,13 @@ const SEED_FLAG = 'lms_seeded_v1';
  * Un id déjà présent (données seed, création depuis /admin) est conservé.
  */
 const ensureFormationIds = (formations) =>
-  (formations || []).map((f, i) => ({
+  arr(formations).map((f, i) => ({
     ...f,
     id: f.id || `formation-${i}`,
-    modules: (f.modules || []).map((m, j) => ({
+    modules: arr(f.modules).map((m, j) => ({
       ...m,
       id: m.id || `module-${i}-${j}`,
-      lessons: (m.lessons || []).map((l, k) => ({
+      lessons: arr(m.lessons).map((l, k) => ({
         ...l,
         id: l.id || `lesson-${i}-${j}-${k}`,
       })),
@@ -28,20 +30,28 @@ const ensureFormationIds = (formations) =>
 
 /* À enregistrer en base : les ids sont conservés (voir ci-dessus). */
 const toPersistedFormations = (formations) =>
-  (formations || []).map((formation) => ({
+  arr(formations).map((formation) => ({
     ...formation,
-    modules: (formation.modules || []).map((module) => ({
+    modules: arr(formation.modules).map((module) => ({
       ...module,
-      lessons: (module.lessons || []).map((lesson) => ({ ...lesson })),
+      lessons: arr(module.lessons).map((lesson) => ({ ...lesson })),
     })),
   }));
 
-const toFormations = (row) => {
-  if (Array.isArray(row.formations)) return row.formations;
-  if (Array.isArray(row.modules)) {
-    return [{ id: 'formation-default', title: '', description: '', modules: row.modules }];
-  }
-  return [];
+/*
+ * `toFormations` (importé depuis api.js) lit une ligne quel que soit son
+ * état : clé active `formations`, ou repli `modules`, string ou tableau.
+ */
+
+/*
+ * Repli rétro-compat : la ligne historique n'a que `modules`.
+ * On prend la première formation qui contient réellement des modules,
+ * sinon le repli serait un tableau vide (inutile) dès que la première
+ * formation est sans module.
+ */
+const legacyModules = (formations) => {
+  const withModules = arr(formations).find((f) => arr(f.modules).length > 0);
+  return arr(withModules && withModules.modules);
 };
 
 export default function useLMS() {
@@ -83,7 +93,9 @@ export default function useLMS() {
                 ],
               },
             ];
-            await lmsAPI.save({ formations: toPersistedFormations(list) }).catch(() => {});
+            await lmsAPI
+              .save({ formations: toPersistedFormations(list), modules: legacyModules(list) })
+              .catch(() => {});
           }
           localStorage.setItem(SEED_FLAG, '1');
         }
@@ -111,7 +123,13 @@ export default function useLMS() {
 
   const save = useCallback(async (fms) => {
     try {
-      const row = await lmsAPI.save({ formations: toPersistedFormations(fms) });
+      // `modules` est écrit en parallèle de `formations` : le PATCH Forge
+      // remplace le blob de la ligne, donc ne garder qu'une seule clé risque
+      // de tout vider si l'autre devient illisible.
+      const row = await lmsAPI.save({
+        formations: toPersistedFormations(fms),
+        modules: legacyModules(fms),
+      });
       const saved = toFormations(row || {});
       setFormations(ensureFormationIds(saved.length ? saved : fms));
       setSource('api');
@@ -122,7 +140,7 @@ export default function useLMS() {
   }, []);
 
   const modules = Array.isArray(formations)
-    ? formations.flatMap((f) => f.modules || [])
+    ? formations.flatMap((f) => arr(f.modules))
     : null;
 
   return { formations, modules, setFormations, loading, error, source, save };

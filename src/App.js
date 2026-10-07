@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ProfileProvider } from './context/ProfileContext';
+import { AuthProvider } from './context/AuthContext';
 import MainLayout from './layouts/MainLayout';
 import { useLang } from './i18n/LanguageContext';
 import HomePage from './views/HomePage';
@@ -18,7 +19,9 @@ import AdminPage from './views/admin/AdminPage';
 export default function App() {
   return (
     <ProfileProvider>
-      <AppRoutes />
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </ProfileProvider>
   );
 }

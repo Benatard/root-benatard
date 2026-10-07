@@ -7,7 +7,7 @@ import ResourceCard from '../../components/ui/ResourceCard';
 import Loading from '../../components/ui/Loading';
 import ErrorBanner from '../../components/ui/ErrorBanner';
 import useResources from '../../hooks/useResources';
-import useAuth from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext';
 import { FORGE_CONFIGURED } from '../../service/api';
 import { toast } from '../../service/swal';
 import { useLang } from '../../i18n/LanguageContext';
@@ -18,9 +18,9 @@ const emptyForm = { type: 'app', title: '', description: '', image: '', url: '' 
 
 export default function ResourcesPage() {
   const { resources, loading, error, addResource, removeResource } = useResources();
-  const { authed } = useAuth();
+  const { isAdmin: hasAdminRole } = useAuth();
   const { t } = useLang();
-  const isAdmin = FORGE_CONFIGURED && authed;
+  const isAdmin = FORGE_CONFIGURED && hasAdminRole;
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 

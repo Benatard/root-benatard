@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FiGrid, FiUser, FiCode, FiFolder, FiBriefcase, FiPlayCircle, FiBookOpen, FiLink, FiImage, FiMail,
-  FiLogOut, FiExternalLink, FiShield, FiUsers,
+  FiLogOut, FiExternalLink, FiShield, FiUsers, FiLock,
 } from 'react-icons/fi';
-import useAuth from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext';
 import AdminLogin from '../../components/admin/AdminLogin';
 import DashboardSection from './sections/DashboardSection';
 import ProfileSection from './sections/ProfileSection';
@@ -34,11 +34,32 @@ const TABS = [
 ];
 
 export default function AdminPage() {
-  const { authed, login, logout, loading, error, checking } = useAuth();
+  const { authed, isAdmin, user, status, busy, login, logout } = useAuth();
   const { t } = useLang();
   const [tab, setTab] = useState('dashboard');
+  const [loginError, setLoginError] = useState(null);
 
-  if (!authed) return <AdminLogin onLogin={login} loading={loading || checking} error={error} />;
+  const handleLogin = useCallback(
+    async (email, password) => {
+      const res = await login(email, password);
+      setLoginError(res.ok ? null : res.error);
+      return res;
+    },
+    [login]
+  );
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray2 dark:bg-[#161B24]">
+        <span className="text-sm font-semibold text-body dark:text-body-dark">{t('common.loading')}</span>
+      </div>
+    );
+  }
+
+  if (!authed) return <AdminLogin onLogin={handleLogin} loading={busy} error={loginError} />;
+
+  /* Connecté mais pas rôle `admin` : on ne montre aucun onglet, aucune donnée. */
+  if (!isAdmin) return <AccessDenied email={user.email} />;
 
   const renderSection = () => {
     switch (tab) {
@@ -151,6 +172,32 @@ export default function AdminPage() {
         </div>
 
         <main className="p-5 md:p-8 lg:p-10 max-w-5xl">{renderSection()}</main>
+      </div>
+    </div>
+  );
+}
+
+function AccessDenied({ email }) {
+  const { t } = useLang();
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gray2 dark:bg-[#161B24]">
+      <div className="w-full max-w-sm card-root p-8 md:p-10 text-center">
+        <div className="mx-auto h-14 w-14 bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
+          <FiLock className="w-6 h-6 text-red-500" />
+        </div>
+        <h1 className="mt-5 text-2xl font-extrabold text-black dark:text-white">{t('admin.denied.title')}</h1>
+        <p className="mt-3 text-sm text-body dark:text-body-dark">{t('admin.denied.sub')}</p>
+        {email && (
+          <p className="mt-2 text-xs font-semibold text-body dark:text-body-dark break-all">{email}</p>
+        )}
+        <div className="mt-7 space-y-2">
+          <Link to="/videos" className="btn-primary-root w-full flex items-center justify-center">
+            {t('admin.denied.toVideos')}
+          </Link>
+          <Link to="/" className="btn-primary-root w-full flex items-center justify-center opacity-70">
+            {t('admin.denied.home')}
+          </Link>
+        </div>
       </div>
     </div>
   );
